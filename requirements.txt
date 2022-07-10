@@ -1,0 +1,10 @@
+discord.py==1.7.3
+asyncio
+mechanicalsoup
+dnspython
+pymongo
+imgurpython
+async-cse
+git+https://github.com/Rapptz/discord-ext-menus
+jishaku
+mystbin
