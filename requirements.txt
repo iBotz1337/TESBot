@@ -7,4 +7,4 @@ imgurpython
 async-cse
 git+https://github.com/Rapptz/discord-ext-menus
 jishaku
-mystbin
+git+https://github.com/AbstractUmbra/mystbin-py.git
