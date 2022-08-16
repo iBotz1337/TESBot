@@ -6,9 +6,9 @@ class Moderation(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    @commands.command(aliases = ['delete', 'del', 'clear'])
+    @commands.command(aliases = ['purge', 'del', 'clear'])
     @commands.check_any(commands.has_permissions(manage_messages = True), commands.is_owner())
-    async def purge(self, ctx, lim: int = 10):
+    async def delete(self, ctx, lim: int = 10):
         """Deletes the given number of messages from current channel."""
         await ctx.message.delete()
         if lim <= 100:
@@ -152,7 +152,7 @@ class Moderation(commands.Cog):
 
     # <# Moderation Error Handler - Start #>
 
-    @purge.error
+    @delete.error
     @kick.error
     @ban.error
     @unban.error

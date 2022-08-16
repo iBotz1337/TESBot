@@ -16,7 +16,7 @@ class CommandErrorHandler(commands.Cog):
             if cog._get_overridden_method(cog.cog_command_error) is not None:
                 return
 
-        ignored = (commands.CommandNotFound, )
+        ignored = (commands.CommandNotFound, commands.errors.CommandNotFound)
         error = getattr(error, 'original', error)
 
         if isinstance(error, ignored):
@@ -32,8 +32,7 @@ class CommandErrorHandler(commands.Cog):
                 pass
 
         elif isinstance(error, commands.BadArgument):
-            if ctx.command.qualified_name == 'tag list':
-                await ctx.send('I could not find that member. Please try again.')
+            await ctx.send('Please provide valid inputs.')
 
         else:
             print('Ignoring exception in command {}:'.format(ctx.command))

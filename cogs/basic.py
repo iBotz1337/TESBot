@@ -449,8 +449,7 @@ class Basic(commands.Cog):
     async def flip(self, ctx):
         """Flips a coin."""
         result = random.choice(["Heads", "Tails"])
-        embed = discord.Embed(description = f"{self.client.emotes.get('arrowright','')} You flipped a coin and it\'s `{result}`")
-        await ctx.send(embed = embed)
+        await ctx.send(f"You flipped a coin and it\'s {result}!")
 
     @commands.command(aliases = ["who"])
     @commands.guild_only()
@@ -540,9 +539,7 @@ class Basic(commands.Cog):
             result = start
         else:
             result = random.randrange(start, end)
-        embed = discord.Embed(description = f"**Random Number Generator**\n`[{start}, {end}]` {self.client.emotes.get('arrowright','')} `{result}`",
-                              color = discord.Color.teal())
-        await ctx.send(embed = embed)
+        await ctx.send(result)
 
     @commands.command(aliases = [])
     async def choose(self, ctx, *, args):
@@ -552,13 +549,14 @@ class Basic(commands.Cog):
         except Exception as e:
             raise e
         result = random.choice(args)
-        embed = discord.Embed(description = f"Hello {ctx.author.name},\n\nI choose `{result}` from the list `{', '.join(args)}`.",
-                              color = discord.Color.teal())
-        await ctx.send(embed = embed)
+        await ctx.send(f"{result}")
 
-    @commands.command(aliases = [])
+    @commands.command(hidden = True, aliases = [])
     async def meme(self, ctx, *, category= None):
         """Displays a random meme from reddit."""
+        if ctx.guild.id != 997006222853144627:
+            return
+
         try:
             memeAPI = "https://meme-api.herokuapp.com/gimme"
             if category:
@@ -577,7 +575,7 @@ class Basic(commands.Cog):
             embed.description = "I couldn't find a meme at the moment."
             await ctx.send(embed = embed)
             
-    @commands.command(aliases = ["jk"])
+    @commands.command(hidden = True, aliases = ["jk"])
     async def joke(self, ctx, jokeID = ""):
         """Displays a random joke."""
         if jokeID:
@@ -616,6 +614,7 @@ class Basic(commands.Cog):
             await ctx.send(embed = embed)
 
     @commands.command(aliases = ["gs"])
+    @commands.cooldown(1, 15, commands.BucketType.user)
     async def google(self, ctx, *, query = None):
         """Googles your query and displays results."""
         if query is None:

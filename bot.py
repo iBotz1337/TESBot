@@ -2,7 +2,7 @@ import os, discord, asyncio
 from discord.ext import commands
 from datetime import datetime
 from pymongo import MongoClient
-#import secret
+import secret
 
 try:
     mclient = MongoClient(os.environ.get('mongodb'))
@@ -16,9 +16,11 @@ class MyBot(commands.Bot):
     wtpList = []
     snipes = {}
     esnipes = {}
-    disabledCogs = ["cogs.test"]
+    #disabledCogs = ['cogs.basic', 'cogs.error', 'cogs.games', 'cogs.moderation', 'cogs.tags', 'cogs.owner', 'cogs.pokemoncreed']
+    disabledCogs = ['cogs.test']
     ownerid = 510664110669561856
     inviteurl = ""
+    boxrateconfig = {"base": 1, "unbase": 0.8, "other": 5}
     
     def __init__(self, command_prefix, intents):
         super().__init__(command_prefix=command_prefix, intents=intents)
@@ -66,7 +68,7 @@ client = MyBot(command_prefix = get_prefix, intents = discord.Intents.all())
 
 @client.event
 async def on_ready():
-    await client.change_presence(status = discord.Status.online, activity = discord.Game('Pokemon Creed'))
+    await client.change_presence(status = discord.Status.online, activity = discord.Game('Pokemon Creed!'))
     print('The Bot is online.')
 
 @client.event

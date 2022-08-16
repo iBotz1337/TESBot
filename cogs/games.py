@@ -56,10 +56,6 @@ class Games(commands.Cog):
         
             try:
                 msg = await self.client.wait_for('message', timeout = time_left, check = check)
-                try:
-                    await msg.delete()
-                except:
-                    pass
             except asyncio.TimeoutError:
                 embed = discord.Embed(description = f"{self.client.emotes.get('redtick', '')}  **You failed to guess {pokeName.title()}**")
                 embed.set_author(name="Who's that Pokémon?", icon_url="https://i.imgur.com/MItw5zU.png")
@@ -171,7 +167,7 @@ class Games(commands.Cog):
         try:
             reaction, user = await self.client.wait_for('reaction_add', check=check, timeout=20)
         except asyncio.TimeoutError:
-            embed.description = "Haha! You've lost the Rock-Paper-Scissors game as you didn't choose any..."
+            embed.description = "You've lost the Rock-Paper-Scissors game due to inactivity..."
             return await x.edit(embed=embed)
         else:
             yours = str(reaction.emoji)
@@ -179,19 +175,19 @@ class Games(commands.Cog):
                 result = "It's a draw!"
             elif mine == reac[0]:
                 if yours == reac[1]:
-                    result = "Oh NO!! You have won. I'll get you next time..."
+                    result = "Oh Noo!! You have won. I'll get you next time..."
                 else:
-                    result = "Hehe, I have won this one."
+                    result = "Haha, You have lost this one."
             elif mine == reac[1]:
                 if yours == reac[2]:
-                    result = "Oh NO!! You have won. I'll get you next time..."
+                    result = "Oh Noo!! You have won. I'll get you next time..."
                 else:
-                    result = "Hehe, I have won this one."
+                    result = "Haha, You have lost this one."
             else:
                 if yours == reac[0]:
-                    result = "Oh NO!! You have won. I'll get you next time..."
+                    result = "Oh Noo!! You have won. I'll get you next time..."
                 else:
-                    result = "Hehe, I have won this one."
+                    result = "Haha, You have lost this one."
             embed.description = f"Your choice: {str(reaction.emoji)} \nMy choice: {mine}\n\n**{result}**"
             await x.edit(embed=embed)
             

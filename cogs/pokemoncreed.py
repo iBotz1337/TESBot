@@ -1,4 +1,4 @@
-import discord, os, mechanicalsoup, asyncio, sqlite3, json, mystbin
+import discord, os, mechanicalsoup, asyncio, sqlite3, json, aiohttp
 from discord.ext import commands, tasks, menus
 from datetime import datetime
 
@@ -9,11 +9,16 @@ class BoxMenu(menus.Menu):
         self.results = results
         self.pg = 0
     
-    async def myst(self, text):
-        mystclient = mystbin.Client()
-        paste = await mystclient.post(text, syntax="text")
-        await mystclient.close()
-        return paste.url
+    async def mystbin(self, text):
+        async with aiohttp.ClientSession() as session:
+            pastedata = {"files":[{"content": text, "filename": "No Title"}]}
+            async with session.put(url="https://api.mystb.in/paste", json=pastedata) as r:
+                if r.status == 201:
+                    mdata = await r.json()
+                    return f"https://mystb.in/{mdata['id']}"
+                else:
+                    print("Oops! I couldn't upload text to mystb.in")
+                    return f"https://mystb.in/"
 
     async def cleanResults(self):
         if self.results["success"]:
@@ -38,7 +43,7 @@ class BoxMenu(menus.Menu):
                 pokes = [poke for lst in self.results for poke in lst]
                 mytext += "\n".join(pokes)
                 mytext += "\n\n>> Box organizer by TES Bot <<"
-                self.pasteURL = await self.myst(mytext)
+                self.pasteURL = await self.mystbin(mytext)
 
         else:
             self.desc = f"`Please provide a valid username.`"
@@ -239,10 +244,8 @@ class PokemonCreed(commands.Cog):
             t = await self.scrape_hd()
             sec = (t['h'] * 60 * 60) + (t['m'] * 60) + t['s'] - 100
             await asyncio.sleep(sec)
-            await self.client.change_presence(activity = discord.Game('Hitdown'))
             await hd_channel.send('@everyone, It\'s Hitdown time!')
             await asyncio.sleep(300)
-            await self.client.change_presence(activity = discord.Game('Pokemon Creed'))
         except:
             print(f'Restarting Hitdown Nootification!')
             await asyncio.sleep(120)
@@ -259,22 +262,21 @@ class PokemonCreed(commands.Cog):
     @tasks.loop(seconds = 10)
     async def promoBGTask(self):
         promo_channel = self.get_promo_channel
-        url = 'https://pokemoncreed.net/ajax/pokedex.php?pokemon=promo'
-        browser = mechanicalsoup.StatefulBrowser()
-        browser.open(url)
-        data = browser.get_current_page().text
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f"https://pokemoncreed.net/ajax/pokedex.php?pokemon=promo") as r:
+                data = await r.text()
         result = json.loads(data)
         current_promo = result["name"]
         if self.Promo == "":
             self.Promo = current_promo
         elif self.Promo != current_promo:
             self.Promo = current_promo
-            embed = discord.Embed(title = f"New Promo: {self.Promo}")
+            embed = discord.Embed(title = f"{self.Promo}")
             embed.description = f"** Promo Center - [Claim Promo](https://www.pokemoncreed.net/promo.php)**"
             embed.color = discord.Color.blue()
             embed.set_image(url = f"https://pokemoncreed.net/sprites/{self.Promo}.png")
             embed.set_footer(text = f"{self.Promo} | {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}", icon_url = f"https://pokemoncreed.net/img/icon/{self.Promo}.gif")
-            await promo_channel.send("@everyone", embed = embed)
+            await promo_channel.send(f"@everyone New Promo: {self.Promo}", embed = embed)
 
     @promoBGTask.before_loop
     async def before_promoBGTask(self):
@@ -282,8 +284,131 @@ class PokemonCreed(commands.Cog):
 
     # <# BG Task: Promo - End #>
 
-    @commands.command(hidden = True, aliases = ['HitdownNotif','HitdownNotification'])
+    async def mystbin(self, text):
+        async with aiohttp.ClientSession() as session:
+            pastedata = {"files":[{"content": text, "filename": "No Title"}]}
+            async with session.put(url="https://api.mystb.in/paste", json=pastedata) as r:
+                if r.status == 201:
+                    mdata = await r.json()
+                    return f"https://mystb.in/{mdata['id']}"
+                else:
+                    print("Oops! I couldn't upload text to mystb.in")
+                    return f"https://mystb.in/"
+    
+    def human_format(self, num, round_to=2):
+        magnitude = 0
+        while abs(num) >= 1000:
+            magnitude += 1
+            num = round(num / 1000.0, round_to)
+        return '{:.2f}{}'.format(num, ['', 'k', 'm', 'g', 't', 'p'][magnitude])
+    
+    async def findRate(self, pokename):
+        """"Fetch rate of a pokemon and returns the result"""
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f"https://pokemoncreed.net/ajax/pokedex.php?pokemon={pokename}") as r:
+                data = await r.text()
+        result = json.loads(data)
+        if result["success"]:
+            rate = result["rating"]
+        else:
+            rate = ""
+        return rate
+    
+    @commands.command(aliases = ["ratebox"])
     @commands.cooldown(1, 60, commands.BucketType.user)
+    async def boxrater(self, ctx, *, userName):
+        """Box Rater (Beta) for Pokemon Creed users."""
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f"https://pokemoncreed.net/ajax/box.php?user={userName}") as r:
+                data = await r.text()
+
+        result = json.loads(data)
+        if result["success"]:
+            uname = result["data"]["name"]
+            uid = result["data"]["id"]
+
+            embed = discord.Embed(title=f"Box Rater: {uname} - #{uid}")
+            embed.description = f"{self.client.emotes.get('loading', '')} Initializing ...\n"
+            zzz = await ctx.send(embed=embed)
+
+            coloreds = ["Cursed", "Glitter", "Golden", "Luminous", "Rainbow", "Shadow"]
+
+            output = {"base": [], "unbase": [], "other": []}
+            findrates = []
+            embed.description = f"""{self.client.emotes.get('greentick', '')} Initializing ...\n
+                                    {self.client.emotes.get('loading','')} Collecting pokemons ...\n"""
+            await zzz.edit(embed = embed)
+            for poke in result["data"]["pokemon"]:
+                if poke["loan"] == "0" and any(poke["name"].startswith(x) for x in coloreds):
+                    if poke["name"] not in findrates:
+                        findrates.append(poke["name"])
+
+                    if poke["level"] == 5:
+                        output["base"].append({"name": poke["name"], "gender": poke["gender"], "level": poke["level"]})
+                    elif poke["level"] > 5:
+                        output["unbase"].append({"name": poke["name"], "gender": poke["gender"], "level": poke["level"]})
+                    else:
+                        output["other"].append({"name": poke["name"], "gender": poke["gender"], "level": poke["level"]})
+
+            pkcount = len(output["base"]) + len(output["unbase"]) + len(output["other"])
+            if not pkcount:
+                embed.description = f"{uname} -#{uid} has no colored pokemons to rate!"
+                await zzz.edit(embed = embed)
+            else:
+                embed.description = f"""{self.client.emotes.get('greentick', '')} Initializing ...\n
+                                    {self.client.emotes.get('greentick','')} Collecting pokemons ...\n
+                                    {self.client.emotes.get('loading','')} Fetching rates ...\n"""
+                await zzz.edit(embed = embed)
+                #try to find rates of every pokemon that the user has (no duplicates)
+                foundrates = {}
+                for poke in findrates:
+                    pkrate = await self.findRate(poke)
+                    pkrate = pkrate.replace("+", "")
+
+                    try:
+                        pkrate = self.convertNumber(pkrate.split(" ", 1)[0])
+                        foundrates[poke] = pkrate
+                    except:
+                        pass
+
+                #Now the actual calculation starts
+                considered = []
+                ignored = []
+                sumthese = []
+                embed.description = f"""{self.client.emotes.get('greentick', '')} Initializing ...\n
+                                    {self.client.emotes.get('greentick','')} Collecting pokemons ...\n
+                                    {self.client.emotes.get('greentick','')} Fetching rates ...\n
+                                    {self.client.emotes.get('loading','')} Calculating ...\n"""
+                await zzz.edit(embed = embed)
+                for category in output:
+                    for poke in output[category]:
+                        if foundrates.get(poke["name"], False):
+                            rate = foundrates.get(poke["name"]) * self.client.boxrateconfig[category]
+                            considered.append(f"{poke['name']} {poke['gender']} - Level: {poke['level']} [{self.human_format(rate)}]")
+                            sumthese.append(rate)
+                        else:
+                            ignored.append(f"{poke['name']} {poke['gender']} - Level: {poke['level']}")
+                
+                mytext = f"Box Rater: {uname} - #{uid}\n\n"
+                mytext += f"Total Rating: {self.human_format(sum(sumthese))}\n\n"
+                mytext += f"\n\n** Unbase: {self.client.boxrateconfig['unbase']}x Rate List |  Level 4 or less: {self.client.boxrateconfig['other']}x Rate List | Genderless/Special Genders are rated normal**\n\n"
+                mytext += "Below pokemons are considered while rating the box: \n\n"""
+                mytext += "\n".join(considered)
+
+                mytext += "\n\nBelow pokemons are NOT considered: \n\n"""
+                mytext += "\n".join(ignored)
+
+                mytext += "\n\n>> Box Rater by TES Bot <<"
+
+                pasteURL = await self.mystbin(mytext)
+                embed.description = f"{self.client.emotes.get('greentick','')} **Total Rating:** {self.human_format(sum(sumthese))}\n"
+                embed.description += f"{self.client.emotes.get('pin','')} [click here for details]({pasteURL})"
+                await zzz.edit(embed = embed)
+        else:
+            await ctx.send("Username not found!")
+
+    @commands.command(hidden = True, aliases = [])
     @commands.is_owner()
     async def hdnotif(self, ctx):
         """Toggles hitdown notification."""
@@ -436,47 +561,13 @@ class PokemonCreed(commands.Cog):
         finally:
             botdb.close()
 
-    @commands.command(aliases = ['mv'])
-    async def move(self, ctx, *, value):
-        """Displays move details of the given pokemon move."""
-        db = sqlite3.connect('botdb.db')
-        cursor = db.cursor()
-        try:
-            output = cursor.execute('select * from Moves where lower(name) = ?', (value.lower(),)).fetchall()
-            if len(output) == 0:
-                suggestions = cursor.execute('select * from Moves where lower(name) like ?',
-                                             ('%' + value.lower() + '%',)).fetchall()
-                if len(suggestions) == 0:
-                    suggestion = 'Try searching a part of the move name?'
-                else:
-                    suggestion = 'Looking for any of the below moves?\n'
-                    for mv in suggestions:
-                        suggestion += '`' + mv[1] + '`\n'
-                embed = discord.Embed(title = 'Move not found',
-                                      description = suggestion,
-                                      color = discord.Color.teal())
-            else:
-                desc = '**Type:** {0[2]}\n**Category:** {0[3]}\n**Base Power:** {0[4]}\n**Accuracy:** {0[5]}\n'.format(
-                    output[0])
-                embed = discord.Embed(title = f'Move: {output[0][1]}',
-                                      description = desc,
-                                      color = discord.Color.teal())
-                type_url = 'https://raw.githubusercontent.com/EliteB0Y/TestBot/master/Images/' + output[0][2] + '.png'
-                embed.set_thumbnail(url = type_url)
-            await ctx.send(embed = embed)
-
-        except Exception as e:
-            raise e
-        finally:
-            db.close()
 
     @commands.command(aliases = ['rate', 'rarity'])
     async def p(self, ctx, *, pokemon):
         """Displays rate, rarity and sprite of the Creed Pokemon."""
-        url = 'https://pokemoncreed.net/ajax/pokedex.php?pokemon=' + pokemon
-        browser = mechanicalsoup.StatefulBrowser()
-        browser.open(url)
-        data = browser.get_current_page().text
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f"https://pokemoncreed.net/ajax/pokedex.php?pokemon={pokemon}") as r:
+                data = await r.text()
         result = json.loads(data)
         if result["success"]:
             embed = discord.Embed(title = result["name"],
@@ -498,6 +589,7 @@ class PokemonCreed(commands.Cog):
             await ctx.send(embed = embed)
 
     @commands.command(aliases = [])
+    @commands.cooldown(1, 60, commands.BucketType.user)
     async def box(self, ctx, *, uname):
         """Displays colored pokemons of a Creed user."""
         url = 'https://pokemoncreed.net/ajax/box.php?user=' + uname
@@ -508,29 +600,12 @@ class PokemonCreed(commands.Cog):
         bm = BoxMenu(ctx, result)
         await bm.start(ctx)
 
-    @commands.command(aliases = ['hd'], hidden = True)
-    @commands.cooldown(1, 60, commands.BucketType.user)
-    @commands.has_any_role('Hitdown', 'hitdown')
-    async def hitdown(self, ctx):
-        """Displays time remaining for the next hitdown."""
-        try:
-            hdtime = await self.scrape_hd()
-            msg = "`Next Hitdown in " + str(hdtime['h']) + "h : " + str(hdtime['m']) + "m : " + str(hdtime['s']) + "s.`"
-            embed = discord.Embed(title = 'Hitdown',
-                                  description = msg,
-                                  color = discord.Color.teal())
-            await ctx.send(embed = embed)
-        except:
-            embed = discord.Embed(title = 'Command Error',
-                                  description = 'Some error occurred, Please try again later.',
-                                  color = discord.Color.red())
-            await ctx.send(embed = embed)
 
     @commands.command(aliases = ['pkrate'])
     async def pokerate(self, ctx, *, pkmn):
         """Computes the total rate of given pokemon(s)."""
         browser = mechanicalsoup.StatefulBrowser()
-        pkmn = pkmn.split(',')
+        pkmn = pkmn.replace("+", ",").replace("\n", ",").split(',')
         considered = []
         not_considered = []
         rates = []
@@ -554,7 +629,8 @@ class PokemonCreed(commands.Cog):
             if result["success"]:
                 pk = result["name"].strip()
                 try:
-                    rate = self.convertNumber(result["rating"])
+                    rate = result["rating"].replace("+", "").split(" ", 1)[0]
+                    rate = self.convertNumber(rate)
                     considered.append(f"{pk} - ({result['rating']}) [x{c}]")
                     rates.append(rate * c)
                 except Exception as e:
@@ -576,10 +652,9 @@ class PokemonCreed(commands.Cog):
 
     # <# Pokemon Creed Error Handler - Start #>
 
-    @hitdown.error
     @box.error
+    @boxrater.error
     @p.error
-    @move.error
     @pokedex.error
     @pokerate.error
     @exp.error

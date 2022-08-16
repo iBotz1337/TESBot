@@ -58,6 +58,7 @@ class Tags(commands.Cog):
                 await ctx.send('`Tag not found!`')
 
     @tag.command(name = "create")
+    @commands.check_any(commands.has_permissions(manage_messages = True), commands.is_owner())
     async def tag_create(self, ctx, *, tagdetails):
         """Creates a new tag. Ex: !tag create <tagname> || <tagcontent>"""
         tags = self.db.get_collection("tags")
@@ -114,15 +115,16 @@ class Tags(commands.Cog):
                 if len(desc) > 4000:
                     desc = desc[:4000] + "\n..."
 
-            embed.description = f"```{desc}```"
-            embed.set_footer(text=f"Tag Search | Found {len(op)} tags matching your search criteria", icon_url=ctx.me.avatar_url)
-            await ctx.send(embed = embed)
+                embed.description = f"```{desc}```"
+                embed.set_footer(text=f"Tag Search | Found {len(op)} tags matching your search criteria", icon_url=ctx.me.avatar_url)
+                await ctx.send(embed = embed)
             
         else:
             embed.description = f"{self.client.emotes.get('alert','')} `Tag not found! Try searching for a part of the tagname?`"
             await ctx.send(embed = embed)
 
     @tag.command(name = "edit")
+    @commands.check_any(commands.has_permissions(manage_messages = True), commands.is_owner())
     async def tag_edit(self, ctx, *, tagdetails):
         """Edits the content of an existing tag. Ex: !tag edit <tagname> || <newtagcontents>"""
         tags = self.db.get_collection("tags")
@@ -151,6 +153,7 @@ class Tags(commands.Cog):
             await ctx.send(f"{self.client.emotes.get('redtick','')} `Tag [{tagname}] doesn't exist!`")
 
     @tag.command(name = "delete")
+    @commands.check_any(commands.has_permissions(manage_messages = True), commands.is_owner())
     async def tag_delete(self, ctx, *, tagname):
         """Deletes a tag."""
         tags = self.db.get_collection("tags")
@@ -166,6 +169,7 @@ class Tags(commands.Cog):
             await ctx.send(f"{self.client.emotes.get('redtick','')} `Tag [{tagname}] doesn't exist!`")
 
     @tag.command(name = "info")
+    @commands.check_any(commands.has_permissions(manage_messages = True), commands.is_owner())
     async def tag_info(self, ctx, *, tagname):
         """Shows information about the given tag."""
         tags = self.db.get_collection("tags")

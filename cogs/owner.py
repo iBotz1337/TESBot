@@ -1,4 +1,4 @@
-import discord, sqlite3, json, re, os, asyncio, mystbin
+import discord, sqlite3, json, re, os, asyncio, aiohttp
 from discord.ext import commands
 from imgurpython import ImgurClient
 from pymongo import MongoClient
@@ -184,7 +184,7 @@ class Owner(commands.Cog):
     @commands.is_owner()
     async def leave(self, ctx):
         """Leaves the Guild."""
-        confirm = await ctx.send("`You want me to leave this server?`")
+        confirm = await ctx.send("`You really want me to leave this server?`")
         await confirm.add_reaction('✅')
         await confirm.add_reaction('❌')
 
@@ -230,7 +230,7 @@ class Owner(commands.Cog):
         mem = blocklist.find_one({"userid": member.id})
         if mem:
             blocklist.delete_one({"userid": member.id})
-            await ctx.send(f"{member.display_name} has been removed to the blocklist!")
+            await ctx.send(f"{member.display_name} has been removed from the blocklist!")
         else:
             await ctx.send(f"{member.display_name} is not blocked!")
         self.client.update_cache
@@ -262,22 +262,33 @@ class Owner(commands.Cog):
             return await ctx.send(emo)
         return await ctx.send('`no emoji`')
         
+    @commands.command(aliases = ["mystbin"])
+    async def myst(self, ctx, * , text = ""):
+        """Uploads your text to https://mystb.in/ and generates shareable link."""
+        async with aiohttp.ClientSession() as session:
+            pastedata = {"files":[{"content": text, "filename": "No Title"}]}
+            async with session.put(url="https://api.mystb.in/paste", json=pastedata) as r:
+                if r.status == 201:
+                    mdata = await r.json()
+                    await ctx.send(f"https://mystb.in/{mdata['id']}")
+                else:
+                    await ctx.send("FAIL")
 
-    @commands.command(name = 'myst')
-    async def _myst(self, ctx, *, text = ""):
-        """Uploads your text to https://mystb.in and generates shareable link."""
-        if text:
-            embed = discord.Embed(title="mystb.in - upload")
-            embed.description = f"{self.client.emotes.get('loading', '')} Generating Link..."
-            x = await ctx.send(embed=embed)
-            mystclient = mystbin.Client()
-            paste = await mystclient.post(text, syntax="text")
-            await mystclient.close()
-            embed.description = f"{self.client.emotes.get('greentick', '')} **Link:** {paste.url}"
-            embed.set_footer(text=f"Requested by {ctx.author.name} • {self.client.get_time}", icon_url=ctx.author.avatar_url)
-            await x.edit(embed=embed)
+    @commands.command(hidden = True)
+    async def nums(ctx, *, data = ""):
+        if data:
+            count = []
+            for line in data.splitlines():
+                x = line.split("|")[2].split(":")[1].replace(" ","")
+                count.append(x)
+            st = " ".join(count)
+            embed = discord.Embed(title="Numbers:")
+            embed.description = st
+            await ctx.message.delete()
+            await ctx.send(embed = embed)
         else:
-            await ctx.send("`Blank text cannot be uploaded to https://mystb.in/`")
+            await ctx.message.delete()
+            await ctx.send("No numbers")
 
     # <# EliteBOY Command: Error Handler - Start #>
 
@@ -290,6 +301,8 @@ class Owner(commands.Cog):
     @leave.error
     @block.error
     @unblock.error
+    @myst.error
+    @nums.error
     async def owner_error(self, ctx, error):
         if isinstance(error, commands.DisabledCommand):
             return
