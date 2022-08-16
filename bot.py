@@ -2,7 +2,7 @@ import os, discord, asyncio
 from discord.ext import commands
 from datetime import datetime
 from pymongo import MongoClient
-import secret
+#import secret
 
 try:
     mclient = MongoClient(os.environ.get('mongodb'))
