@@ -275,7 +275,7 @@ class Owner(commands.Cog):
                     await ctx.send("FAIL")
 
     @commands.command(hidden = True)
-    async def nums(ctx, *, data = ""):
+    async def nums(self, ctx, *, data = ""):
         if data:
             count = []
             for line in data.splitlines():
