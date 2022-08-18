@@ -178,6 +178,11 @@ class PokemonCreed(commands.Cog):
     @property
     def get_hd_channel(self):
         return self.client.get_channel(530734189633601536)
+
+    @property
+    def get_hd_channel2(self):
+        return self.client.get_channel(1003494747521949716)
+
     @property
     def get_promo_channel(self):
         return self.client.get_channel(781395831353638942)
@@ -237,6 +242,7 @@ class PokemonCreed(commands.Cog):
     @tasks.loop(seconds = 120)
     async def hitdownBGTask(self):
         hd_channel = self.get_hd_channel
+        hd_channel2 = self.get_hd_channel2
         if self.HitdownNotif != True:
             return
 
@@ -245,6 +251,7 @@ class PokemonCreed(commands.Cog):
             sec = (t['h'] * 60 * 60) + (t['m'] * 60) + t['s'] - 100
             await asyncio.sleep(sec)
             await hd_channel.send('@everyone, It\'s Hitdown time!')
+            await hd_channel2.send('@everyone, It\'s Hitdown time!')
             await asyncio.sleep(300)
         except:
             print(f'Restarting Hitdown Nootification!')
