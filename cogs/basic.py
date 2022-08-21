@@ -3,12 +3,6 @@ from datetime import datetime
 from discord.ext import commands, menus
 from pymongo import MongoClient
 
-try:
-    mclient = MongoClient(os.environ.get("mongodb"))
-    db = mclient.get_database("my_db")
-except:
-    print("Cannot connect to MongoDB at the moment!")
-
 class SnipeMenu(menus.Menu):
     def __init__(self, ctx, csn):
         super().__init__()
@@ -245,6 +239,35 @@ class Basic(commands.Cog):
     def __init__(self, client):
         self.client = client
 
+    try:
+        mclient = MongoClient(os.environ.get('mongodb'))
+        db = mclient.get_database("my_db")
+    except:
+        print('Cannot connect to MongoDB at the moment!')
+
+    # <# Event: On Guild Join - Start #>
+
+    @commands.Cog.listener()
+    async def on_guild_join(self, guild):
+        prefixes = self.db.get_collection("prefixes")
+        p = prefixes.find_one({"serverid": guild.id})
+        if not p:
+            prefixes.insert_one({"serverid": guild.id, "prefix": "!"})
+
+    # <# Event: On Guild Join - End #>
+
+    # <# Event: On Guild Remove - Start #>
+
+    @commands.Cog.listener()
+    async def on_guild_remove(self, guild):
+        prefixes = self.db.get_collection("prefixes")
+        p = prefixes.find_one({"serverid": guild.id})
+        if p:
+            prefixes.delete_one({"serverid": guild.id})
+
+    # <# Event: On Guild Remove - End #>
+
+
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
         if before.content != after.content:
@@ -302,7 +325,7 @@ class Basic(commands.Cog):
                 await x.edit(embed = embed)
             else:
                 if any(i == msg.content.lower() for i in ["y", "yes", "confirm"]):
-                    prefixes = db.get_collection("prefixes")
+                    prefixes = self.db.get_collection("prefixes")
                     p = prefixes.find_one({"serverid": ctx.guild.id})
                     prefixes.update_one({"serverid": ctx.guild.id}, {"$set": {"prefix": new_prefix}})
                     desc = f"{self.client.emotes.get('accepted','')} Command prefix changed to {self.client.emotes.get('arrowright','**')} {new_prefix} {self.client.emotes.get('arrowleft','**')}"
@@ -541,7 +564,7 @@ class Basic(commands.Cog):
             result = random.randrange(start, end)
         await ctx.send(result)
 
-    @commands.command(aliases = [])
+    @commands.command(aliases = ["pick"])
     async def choose(self, ctx, *, args):
         """Selects a random option from the (comma seperated) given options."""
         try:
@@ -573,44 +596,6 @@ class Basic(commands.Cog):
         except:
             embed = discord.Embed(title = "#404 - Not Found")
             embed.description = "I couldn't find a meme at the moment."
-            await ctx.send(embed = embed)
-            
-    @commands.command(hidden = True, aliases = ["jk"])
-    async def joke(self, ctx, jokeID = ""):
-        """Displays a random joke."""
-        if jokeID:
-            if [True if jokeID.isnumeric() else False][0]:
-                jokeID = f"?idRange={int(jokeID)}"
-            else:
-                jokeID = ""
-        
-        try:
-            jokeAPI = "https://v2.jokeapi.dev/joke/Any"
-            
-            response = requests.get(jokeAPI + jokeID)
-            j = response.json()
-            desc = ""
-            embed = discord.Embed()
-            if not j["error"]:
-                embed.title = f"Category: {j['category']}"
-                if j.get("joke"):
-                    desc += j["joke"]
-                else:
-                    desc += j["setup"] + "\n\n"
-                    desc += "||" + j["delivery"] + "||"
-            else:
-                embed.title = "Error"
-                desc += ",".join(j.get("causedBy")) + "\n" + j.get("additionalInfo")
-            
-            embed.description = desc
-            if j.get("id"):
-                embed.set_footer(text= f"Joke ID : {j.get('id')} | Random Jokes")
-            else:
-                embed.set_footer(text= "joke [jokeID] | Shows a particular joke")
-            await ctx.send(embed = embed)
-        except:
-            embed = discord.Embed(title = "#404 - Not Found")
-            embed.description = "I couldn't find a joke at the moment."
             await ctx.send(embed = embed)
 
     @commands.command(aliases = ["gs"])
@@ -644,6 +629,25 @@ class Basic(commands.Cog):
                 #embed.set_footer(text="Google", icon_url= "https://i.imgur.com/uTmJl1x.png")
                 embed.description = "`No results found!`"
                 await ctx.send(embed=embed)
+    
+    @commands.command()
+    async def poll(self, ctx, *, details = ""):
+        """Creates a Poll with the given details."""
+        if details:
+            embed = discord.Embed()
+            embed.description = details
+            embed.set_author(name=f"Poll by: {ctx.author}", icon_url= ctx.author.avatar_url)
+            embed.set_footer(text=f"Created on: {self.client.get_time}", icon_url=ctx.me.avatar_url)
+            reac = [self.client.emotes.get("upvote",""), self.client.emotes.get("downvote")]
+            try:
+                await ctx.message.delete()
+            except:
+                pass
+            pollmessage = await ctx.send(embed=embed)
+            for r in reac:
+                await pollmessage.add_reaction(r)
+        else:
+            await ctx.send("Poll cannot be created with blank description!")
                 
     # <# Basic Error Handler - Start #>
 
@@ -653,9 +657,9 @@ class Basic(commands.Cog):
     @_random.error
     @choose.error
     @meme.error
-    @joke.error
     @google.error
     @calculate.error
+    @poll.error
     async def basic_error(self, ctx, error):
         if isinstance(error, commands.DisabledCommand):
             return

@@ -17,6 +17,7 @@ class MyBot(commands.Bot):
     snipes = {}
     esnipes = {}
     #disabledCogs = ['cogs.basic', 'cogs.error', 'cogs.games', 'cogs.moderation', 'cogs.tags', 'cogs.owner', 'cogs.pokemoncreed']
+    #disabledCogs = ['cogs.basic', 'cogs.error', 'cogs.games', 'cogs.moderation', 'cogs.owner', 'cogs.pokemoncreed']
     disabledCogs = ['cogs.test']
     ownerid = 510664110669561856
     inviteurl = ""
