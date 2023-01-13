@@ -190,6 +190,63 @@ class Games(commands.Cog):
                     result = "Haha, You have lost this one."
             embed.description = f"Your choice: {str(reaction.emoji)} \nMy choice: {mine}\n\n**{result}**"
             await x.edit(embed=embed)
+
+    @commands.command()
+    async def pkquiz(self, ctx, points_to_win = 5):
+        """Guess the pokemon by dex entries."""
+        try:
+            points_to_win = int(points_to_win)
+        except:
+            _ = await ctx.send("Invalid input for `points_to_win` parameter.")
+            return
+
+        with open("dex_entries.json","r") as f:
+            data = json.load(f)
+
+        start = True
+        points_table = {}
+        while start:
+            c = random.choice(list(data.keys()))
+            quiz = f"{data[c][0]}\n{data[c][1]}"
+            answer = c
+            if answer in quiz:
+                quiz = quiz.replace(answer, "this pokemon")
+
+            _ = await ctx.send(quiz)
+
+            def check(message):
+                if message.content.lower() == answer.lower():
+                    return True
+                elif message.content.lower() == "skip" and message.author == ctx.author:
+                    return True
+                elif message.content.lower() == "quit" and message.author == ctx.author:
+                    return True
+
+            try:
+                msg = await self.client.wait_for('message',check=check, timeout=60)
+            except asyncio.TimeoutError:
+                _ = await ctx.send("You have failed to guess the answer!")
+                start = False
+            else:
+                if msg.content.lower() == answer.lower():
+                    point = points_table.get(msg.author, 0) + 1
+                    points_table[msg.author] = point
+                    if point >= points_to_win:
+                        _ = await ctx.send(f"{msg.author} wins with {point} points!!!")
+                    else:
+                        _ = await ctx.send(f"{msg.author} : +1 [Total: {point} points]")
+                        await asyncio.sleep(3)
+                elif msg.content.lower() == "skip":
+                    _ = await ctx.send("You have skipped this question!!")
+                    await asyncio.sleep(3)
+                elif msg.content.lower() == "quit":
+                    _ = await ctx.send("You have ended the quiz!!!")
+                    start = False
+
+            if any([True for v in points_table.values() if v >= points_to_win]):
+                start = False
+                desc = "\n".join([f"{k} : {v} points" for k,v in points_table.items()])
+                _ = await ctx.send(f"**Points Table:** \n{desc}")
             
 def setup(client):
     client.add_cog(Games(client))
