@@ -235,18 +235,18 @@ class Games(commands.Cog):
                         _ = await ctx.send(f"{msg.author} wins with {point} points!!!")
                     else:
                         _ = await ctx.send(f"{msg.author} : +1 [Total: {point} points]")
-                        await asyncio.sleep(3)
+                        await asyncio.sleep(7)
                 elif msg.content.lower() == "skip":
-                    _ = await ctx.send("You have skipped this question!!")
-                    await asyncio.sleep(3)
+                    _ = await ctx.send(f"You have skipped this question!! But the answer was: {answer}")
+                    await asyncio.sleep(5)
                 elif msg.content.lower() == "quit":
                     _ = await ctx.send("You have ended the quiz!!!")
                     start = False
 
-            if any([True for v in points_table.values() if v >= points_to_win]):
-                start = False
+            if not start:
+                points_table = sorted(points_table.items(), key=lambda item: item[1], reverse=True)
                 desc = "\n".join([f"{k} : {v} points" for k,v in points_table.items()])
-                _ = await ctx.send(f"**Points Table:** \n{desc}")
+                _ = await ctx.send(f"**Points Table:** \n```{desc}```")
             
 def setup(client):
     client.add_cog(Games(client))
