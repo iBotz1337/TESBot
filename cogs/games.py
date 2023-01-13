@@ -223,9 +223,9 @@ class Games(commands.Cog):
                     return True
 
             try:
-                msg = await self.client.wait_for('message',check=check, timeout=60)
+                msg = await self.client.wait_for('message',check=check, timeout=120)
             except asyncio.TimeoutError:
-                _ = await ctx.send("You have failed to guess the answer!")
+                _ = await ctx.send(f"You have failed to guess the answer: {answer}!")
                 start = False
             else:
                 if msg.content.lower() == answer.lower():
