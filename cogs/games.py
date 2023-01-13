@@ -233,6 +233,7 @@ class Games(commands.Cog):
                     points_table[msg.author] = point
                     if point >= points_to_win:
                         _ = await ctx.send(f"{msg.author} wins with {point} points!!!")
+                        start = False
                     else:
                         _ = await ctx.send(f"{msg.author} : +1 [Total: {point} points]")
                         await asyncio.sleep(7)
