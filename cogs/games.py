@@ -210,7 +210,7 @@ class Games(commands.Cog):
             quiz = f"{data[c][0]}\n{data[c][1]}"
             answer = c
             if answer in quiz:
-                quiz = quiz.replace(answer, "this pokemon")
+                quiz = quiz.replace(answer, "_" * len(answer))
 
             _ = await ctx.send(quiz)
 
@@ -235,6 +235,7 @@ class Games(commands.Cog):
                         _ = await ctx.send(f"{msg.author} wins with {point} points!!!")
                         start = False
                     else:
+                        await ctx.msg.add_reaction("✅")
                         _ = await ctx.send(f"{msg.author} : +1 [Total: {point} points]")
                         await asyncio.sleep(7)
                 elif msg.content.lower() == "skip":
@@ -245,9 +246,11 @@ class Games(commands.Cog):
                     start = False
 
             if not start:
-                points_table = sorted(points_table.items(), key=lambda item: item[1], reverse=True)
-                desc = "\n".join([f"{k} : {v} points" for k,v in points_table.items()])
-                _ = await ctx.send(f"**Points Table:** \n```{desc}```")
+                points_table = dict(sorted(points_table.items(), key=lambda item: item[1], reverse=True))
+                desc = "\n"
+                desc += "\n".join([f"{k} : {v} points" for k,v in points_table.items()])
+                _ = await ctx.send(f"```Points Table:{desc}```")
+
             
 def setup(client):
     client.add_cog(Games(client))
