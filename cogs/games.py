@@ -210,7 +210,7 @@ class Games(commands.Cog):
             quiz = f"{data[c][0]}\n{data[c][1]}"
             answer = c
             if answer in quiz:
-                quiz = quiz.replace(answer, "_" * len(answer))
+                quiz = quiz.replace(answer, "\_" * len(answer))
 
             _ = await ctx.send(quiz)
 
@@ -223,33 +223,39 @@ class Games(commands.Cog):
                     return True
 
             try:
-                msg = await self.client.wait_for('message',check=check, timeout=120)
+                msg = await self.client.wait_for('message',check=check, timeout=60)
             except asyncio.TimeoutError:
                 _ = await ctx.send(f"You have failed to guess the answer: {answer}!")
-                start = False
+
             else:
                 if msg.content.lower() == answer.lower():
                     point = points_table.get(msg.author, 0) + 1
                     points_table[msg.author] = point
+                    await msg.add_reaction("✅")
+                    
                     if point >= points_to_win:
                         _ = await ctx.send(f"{msg.author} wins with {point} points!!!")
                         start = False
                     else:
-                        await ctx.msg.add_reaction("✅")
                         _ = await ctx.send(f"{msg.author} : +1 [Total: {point} points]")
-                        await asyncio.sleep(7)
+
+                    
                 elif msg.content.lower() == "skip":
-                    _ = await ctx.send(f"You have skipped this question!! But the answer was: {answer}")
-                    await asyncio.sleep(5)
+                    _ = await ctx.send(f"You have skipped this question!! The answer was: {answer}")
                 elif msg.content.lower() == "quit":
                     _ = await ctx.send("You have ended the quiz!!!")
                     start = False
 
             if not start:
                 points_table = dict(sorted(points_table.items(), key=lambda item: item[1], reverse=True))
-                desc = "\n"
+                desc = "--------------------\n"
+                desc += "Points Table: \n"
+                desc += "--------------------\n"
                 desc += "\n".join([f"{k} : {v} points" for k,v in points_table.items()])
-                _ = await ctx.send(f"```Points Table:{desc}```")
+                desc += "\n--------------------"
+                _ = await ctx.send(f"```{desc}```")
+
+            await asyncio.sleep(7)
 
             
 def setup(client):
