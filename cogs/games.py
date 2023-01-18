@@ -221,7 +221,7 @@ class Games(commands.Cog):
             quiz = f"{data[c][0]}\n{data[c][1]}"
             answer = c
             if answer in quiz:
-                quiz = quiz.replace(answer, "\_" * len(answer))
+                quiz = quiz.replace(answer, "_" * len(answer))
 
             trans = quiz.maketrans("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", "ᴀʙᴄᴅᴇғɢʜɪᴊᴋʟᴍɴᴏᴘǫʀsᴛᴜᴠᴡxʏᴢᴀʙᴄᴅᴇғɢʜɪᴊᴋʟᴍɴᴏᴘǫʀsᴛᴜᴠᴡxʏᴢ")
             quiz = "```" + quiz.translate(trans) + "```"
