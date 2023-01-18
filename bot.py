@@ -14,6 +14,7 @@ class MyBot(commands.Bot):
     #Declare Bot variables here (can be accesses in cogs using self.client.variable)
     launch_time = datetime.utcnow()
     wtpList = []
+    activeQuiz = []
     snipes = {}
     esnipes = {}
     #disabledCogs = ['cogs.basic', 'cogs.error', 'cogs.games', 'cogs.moderation', 'cogs.tags', 'cogs.owner', 'cogs.pokemoncreed']

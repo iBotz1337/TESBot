@@ -192,13 +192,24 @@ class Games(commands.Cog):
             await x.edit(embed=embed)
 
     @commands.command()
+    @commands.has_any_role('Contest', 'Admin', 'Mod')
     async def pkquiz(self, ctx, points_to_win = 5):
         """Guess the pokemon by dex entries."""
-        try:
-            points_to_win = int(points_to_win)
-        except:
-            _ = await ctx.send("Invalid input for `points_to_win` parameter.")
+        if ctx.guild.id in self.client.activeQuiz:
+            await ctx.send("A quiz is already running in this server. End the quiz to start another one!")
             return
+        else:
+            try:
+                points_to_win = int(points_to_win)
+            except:
+                _ = await ctx.send("Invalid input for `points_to_win` parameter.")
+                return
+
+            self.client.activeQuiz.append(ctx.guild.id)
+            await ctx.send(f"A quiz will start in few seconds. First to {points_to_win} point wins!")
+            await asyncio.sleep(5)
+
+        
 
         with open("dex_entries.json","r") as f:
             data = json.load(f)
@@ -245,8 +256,10 @@ class Games(commands.Cog):
                 elif msg.content.lower() == "quit":
                     _ = await ctx.send("You have ended the quiz!!!")
                     start = False
+                    
 
             if not start:
+                self.client.activeQuiz.remove(ctx.guild.id)
                 points_table = dict(sorted(points_table.items(), key=lambda item: item[1], reverse=True))
                 desc = "--------------------\n"
                 desc += "Points Table: \n"
@@ -256,6 +269,30 @@ class Games(commands.Cog):
                 _ = await ctx.send(f"```{desc}```")
 
             await asyncio.sleep(7)
+
+    @pkquiz.error
+    async def games_error(self, ctx, error):
+        if isinstance(error, commands.DisabledCommand):
+            return
+        elif isinstance(error, commands.MissingRequiredArgument):
+            embed = discord.Embed(description = f'`Hi {ctx.author.name}, Please provide required arguments for {ctx.command.name} command!`',
+                                  color = discord.Color.red())
+            await ctx.send(embed = embed)
+        elif isinstance(error, commands.CommandOnCooldown):
+            embed = discord.Embed(description = f'`Hi {ctx.author.name}, You are on cooldown. Please retry after {round(error.retry_after)}s.`',
+                                  color = discord.Color.red())
+            await ctx.send(embed = embed)
+        elif isinstance(error, commands.CheckFailure):
+            embed = discord.Embed(description = f'`Hi {ctx.author.name}, You cannot use this command as: {str(error)}`',
+                                  color = discord.Color.red())
+            await ctx.send(embed = embed)
+        elif isinstance(error, commands.BotMissingPermissions):
+            embed = discord.Embed(description = f'`Hi {ctx.author.name}, I do not have the following permissions: {error.missing_perms}`',
+                                  color = discord.Color.red())
+            await ctx.send(embed = embed)
+        else:
+            embed = discord.Embed(description = str(error), color = discord.Color.red())
+            await ctx.send(embed = embed)
 
             
 def setup(client):
