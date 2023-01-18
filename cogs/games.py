@@ -219,6 +219,8 @@ class Games(commands.Cog):
         while start:
             c = random.choice(list(data.keys()))
             quiz = f"{data[c][0]}\n{data[c][1]}"
+            trans = quiz.maketrans("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", "ᴀʙᴄᴅᴇғɢʜɪᴊᴋʟᴍɴᴏᴘǫʀsᴛᴜᴠᴡxʏᴢᴀʙᴄᴅᴇғɢʜɪᴊᴋʟᴍɴᴏᴘǫʀsᴛᴜᴠᴡxʏᴢ")
+            quiz = quiz.translate(trans)
             answer = c
             if answer in quiz:
                 quiz = quiz.replace(answer, "\_" * len(answer))
