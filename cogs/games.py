@@ -224,7 +224,7 @@ class Games(commands.Cog):
                 quiz = quiz.replace(answer, "\_" * len(answer))
 
             trans = quiz.maketrans("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", "ᴀʙᴄᴅᴇғɢʜɪᴊᴋʟᴍɴᴏᴘǫʀsᴛᴜᴠᴡxʏᴢᴀʙᴄᴅᴇғɢʜɪᴊᴋʟᴍɴᴏᴘǫʀsᴛᴜᴠᴡxʏᴢ")
-            quiz = quiz.translate(trans)
+            quiz = "```" + quiz.translate(trans) + "```"
 
             _ = await ctx.send(quiz)
 
