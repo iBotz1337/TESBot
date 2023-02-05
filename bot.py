@@ -23,6 +23,9 @@ class MyBot(commands.Bot):
     ownerid = 510664110669561856
     inviteurl = ""
     boxrateconfig = {"base": 1, "unbase": 0.8, "other": 5}
+    raids_config = {"category_id": 1043874022552780880, 
+                    "channel_id": 1071627979110760499, 
+                    "doable_raids" : ['articuno', ' mew', ' mewtwo', ' celebi', ' deoxys', ' uxie', ' mesprit', ' azelf', ' cresselia', ' heatran', ' phione', ' manaphy', ' shaymin', ' virizion', ' genesect', ' keldeo', ' diancie', ' hoopa', ' tapu lele', ' lunala', ' nihilego', ' pheromosa', ' kartana', ' necrozma', ' poipole', ' naganadel', ' stakataka', ' blacephalon', ' melmetal', ' zarude', ' calyrex', ' enamorus', ' wo-chien', ' chien-pao', ' chi-yu']}
     
     def __init__(self, command_prefix, intents):
         super().__init__(command_prefix=command_prefix, intents=intents)
@@ -76,6 +79,19 @@ async def on_ready():
 @client.event
 async def on_message(message):
     channel = message.channel
+
+    if message.channel.category_id == client.raids_config["category_id"]:
+        if message.embeds:
+            embed = message.embeds[0]
+            if "Raid Announcement" in embed.title:
+                description = embed.description
+                raid_boss = description.splitlines()[1].split(":**", maxsplit=1)[1].lower()
+                if raid_boss in client.raids_config["doable_raids"]:
+                    description += f"\n\n**[Link to the message]({message.jump_url})**"
+                    embed = discord.Embed(title= "⚔️ Raid Announcement ⚔️", description=description, color = discord.Color.teal())
+                    channel_id = client.get_channel(client.raids_config["channel_id"])
+                    await channel_id.send(embed=embed)
+
     if message.author.bot or message.author.id in client.blocklist:
         return 
         
