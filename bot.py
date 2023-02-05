@@ -78,6 +78,10 @@ async def on_ready():
 @client.event
 async def on_message(message):
     channel = message.channel
+        
+    if isinstance(message.channel, discord.DMChannel):
+        if message.author.id != client.ownerid:
+            return
 
     if message.channel.category_id == client.raids_config["category_id"]:
         if message.embeds:
@@ -93,10 +97,6 @@ async def on_message(message):
 
     if message.author.bot or message.author.id in client.blocklist:
         return 
-        
-    if isinstance(message.channel, discord.DMChannel):
-        if message.author.id != client.ownerid:
-            return
 
     if client.user in message.mentions and message.content.lower().startswith(('hey', 'hi', 'hello', 'yo')):
         prefix = await client.get_prefix(message)
