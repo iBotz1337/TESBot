@@ -182,5 +182,5 @@ class Moderation(commands.Cog):
     # <# Moderation Error Handler - End #>
 
 
-def setup(client):
-    client.add_cog(Moderation(client))
+async def setup(client):
+    await client.add_cog(Moderation(client))

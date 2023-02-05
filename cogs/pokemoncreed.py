@@ -690,5 +690,5 @@ class PokemonCreed(commands.Cog):
 
     # <# Pokemon Creed Error Handler - End #>
 
-def setup(client):
-    client.add_cog(PokemonCreed(client))
+async def setup(client):
+    await client.add_cog(PokemonCreed(client))

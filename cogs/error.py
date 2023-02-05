@@ -37,5 +37,5 @@ class CommandErrorHandler(commands.Cog):
         else:
             print('Ignoring exception in command {}:'.format(ctx.command))
 
-def setup(bot):
-    bot.add_cog(CommandErrorHandler(bot))
+async def setup(bot):
+    await bot.add_cog(CommandErrorHandler(bot))

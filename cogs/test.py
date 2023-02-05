@@ -12,5 +12,5 @@ class Test(commands.Cog):
         self.client = client
 
 
-def setup(client):
-    client.add_cog(Test(client))
+async def setup(client):
+    await client.add_cog(Test(client))

@@ -319,5 +319,5 @@ class Owner(commands.Cog):
 
     # <# EliteBOY Command: Error Handler - End #>
 
-def setup(client):
-    client.add_cog(Owner(client))
+async def setup(client):
+    await client.add_cog(Owner(client))

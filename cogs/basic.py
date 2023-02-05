@@ -685,5 +685,5 @@ class Basic(commands.Cog):
 
     # <# Basic Error Handler - End #>
 
-def setup(client):
-    client.add_cog(Basic(client))
+async def setup(client):
+    await client.add_cog(Basic(client))

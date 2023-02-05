@@ -267,5 +267,5 @@ class Tags(commands.Cog):
 
     # <# Other Error Handler - Start #>
 
-def setup(client):
-    client.add_cog(Tags(client))
+async def setup(client):
+    await client.add_cog(Tags(client))

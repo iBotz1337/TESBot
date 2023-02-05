@@ -2,7 +2,7 @@ import os, discord, asyncio
 from discord.ext import commands
 from datetime import datetime
 from pymongo import MongoClient
-#import secret
+import secret
 
 try:
     mclient = MongoClient(os.environ.get('mongodb'))
@@ -17,8 +17,6 @@ class MyBot(commands.Bot):
     activeQuiz = []
     snipes = {}
     esnipes = {}
-    #disabledCogs = ['cogs.basic', 'cogs.error', 'cogs.games', 'cogs.moderation', 'cogs.tags', 'cogs.owner', 'cogs.pokemoncreed']
-    #disabledCogs = ['cogs.basic', 'cogs.error', 'cogs.games', 'cogs.moderation', 'cogs.owner', 'cogs.pokemoncreed']
     disabledCogs = ['cogs.test']
     ownerid = 510664110669561856
     inviteurl = ""
@@ -26,6 +24,7 @@ class MyBot(commands.Bot):
     raids_config = {'category_id': 1043874022552780880, 
                     'channel_id': 1071627979110760499, 
                     'doable_raids': ['articuno', 'mew', 'mewtwo', 'celebi', 'deoxys', 'uxie', 'mesprit', 'azelf', 'cresselia', 'heatran', 'phione', 'manaphy', 'shaymin', 'virizion', 'genesect', 'keldeo', 'diancie', 'hoopa', 'tapu lele', 'lunala', 'nihilego', 'pheromosa', 'kartana', 'necrozma', 'poipole', 'naganadel', 'stakataka', 'blacephalon', 'xurkitree', 'melmetal', 'zarude', 'calyrex', 'enamorus', 'wo-chien', 'chien-pao', 'chi-yu', 'rapid strike style urshifu', 'gigantamax rapid strike style urshifu', 'single strike urshifu']}    
+    
     def __init__(self, command_prefix, intents):
         super().__init__(command_prefix=command_prefix, intents=intents)
         self._cache_block = None
@@ -88,10 +87,10 @@ async def on_message(message):
             embed = message.embeds[0]
             if "Raid Announcement" in embed.title:
                 description = embed.description
-                raid_boss = description.splitlines()[1].split(":**", maxsplit=1)[1].lower()
+                raid_boss = description.splitlines()[1].split(":**", maxsplit=1)[1].lower().strip()
                 if raid_boss in client.raids_config["doable_raids"]:
-                    description += f"\n\n**Channel:** {message.channel.mention}\n**"
                     embed = discord.Embed(title= "⚔️ Raid Announcement ⚔️", description=description, url = message.jump_url, color = discord.Color.teal())
+                    embed.add_field(name="Channel:", value=f"{message.channel.mention}")
                     channel_id = client.get_channel(client.raids_config["channel_id"])
                     await channel_id.send(embed=embed)
 
@@ -112,12 +111,16 @@ async def on_message(message):
 os.environ["JISHAKU_NO_UNDERSCORE"]="True"
 os.environ["JISHAKU_HIDE"]="True"
 
-extensions = ['cogs.basic', 'cogs.error', 'cogs.games', 'cogs.moderation', 'cogs.tags', 'cogs.owner', 'cogs.pokemoncreed', 'cogs.test', 'jishaku']
-for extension in extensions:
-    if extension not in client.disabledCogs:
-        client.load_extension(extension)
-        print(f'Successfullly loaded [{extension}] extension!')
 
-client.run(os.environ.get('TOKEN'))
+async def main():
+    extensions = ['cogs.basic', 'cogs.error', 'cogs.games', 'cogs.moderation', 'cogs.tags', 'cogs.owner', 'cogs.pokemoncreed', 'cogs.test', 'jishaku']
+    async with client:
+        for extension in extensions:
+            if extension not in client.disabledCogs:
+                await client.load_extension(extension)
+                print(f'Successfullly loaded [{extension}] extension!')
+        await client.start(os.environ.get('TOKEN'))
+
+asyncio.run(main())
 
 # <# Run the Bot - End #>
