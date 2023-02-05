@@ -87,7 +87,7 @@ async def on_message(message):
                 description = embed.description
                 raid_boss = description.splitlines()[1].split(":**", maxsplit=1)[1].lower()
                 if raid_boss in client.raids_config["doable_raids"]:
-                    description += f"\n\n**[Link to the message]({message.jump_url})**"
+                    description += f"\n\n**Channel:** {message.channel.mention}\n**[Link to the message]({message.jump_url})**"
                     embed = discord.Embed(title= "⚔️ Raid Announcement ⚔️", description=description, color = discord.Color.teal())
                     channel_id = client.get_channel(client.raids_config["channel_id"])
                     await channel_id.send(embed=embed)
