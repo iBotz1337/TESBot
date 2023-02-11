@@ -505,7 +505,7 @@ class Basic(commands.Cog):
                               color = discord.Color.teal())
         embed.set_author(name = member.name, icon_url = member.avatar)
         embed.add_field(name = f"{self.client.emotes.get('arrowright','')} Status: ", value = f"{self.client.emotes.get(str(member.status),'')} " + str(member.status).title(), inline = False)
-        embed.add_field(name = f"{self.client.emotes.get('arrowright','')} Activity: ", value = str(member.activity).title(), inline = False)
+        embed.add_field(name = f"{self.client.emotes.get('arrowright','')} Activity: ", value = str(member.activity), inline = False)
         embed.add_field(name = f"{self.client.emotes.get('arrowright','')} Joined Discord: ",
                         value = f"{self.client.emotes.get('in','')} {member.created_at.date()} ({(discord.utils.utcnow() - member.created_at).days} Days ago)",
                         inline = False)

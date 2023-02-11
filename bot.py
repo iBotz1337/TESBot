@@ -80,8 +80,8 @@ async def _ping(interaction: discord.Interaction):
 
 @client.event
 async def on_ready():
-    #await client.change_presence(status = discord.Status.online, activity = discord.Game('Pokemon Creed!'))
-    await client.change_presence(status = discord.Status.dnd, activity = discord.Game('with EliteBOY'))
+    await client.change_presence(status = discord.Status.idle, activity = discord.Game('Pokemon!'))
+    #await client.change_presence(status = discord.Status.dnd, activity = discord.Game('with EliteBOY'))
     print('The Bot is online.')
 
 @client.event
