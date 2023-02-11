@@ -9,13 +9,14 @@ class Games(commands.Cog):
 
     
     @commands.group()
+    @commands.guild_only()
     async def wtp(self, ctx):
         """Who's that pokemon game."""
         if ctx.invoked_subcommand is None:
             embed = discord.Embed()
             embed.set_author(name="Minigame: Who's that Pokémon?", icon_url="https://i.imgur.com/MItw5zU.png")
-            desc = "```This is a minigame where you have to guess the Pokémon name!\nGame includes Pokémon from all the generations (Currently includes 897 Pokémons).```"
-            rules = "```1. You have to guess the Pokémon name within 15 seconds.\n2. For every correct guess, the guessing time reduces by 0.25 seconds. (Game gets harder as you score more points!)\n3. Only English names are allowed. (Case Insensitive)\n4. Failing to Guess or Wrong guess will end the game.\n```"
+            desc = "```This is a minigame where you have to guess the Pokémon name!\nGame includes Pokémon from 8 generations (Currently includes 897 Pokémons).```"
+            rules = "```1. You have to guess the Pokémon name within 15 seconds.\n2. For every correct guess, the guessing time reduces by 0.2 seconds. (Game gets harder as you score more points!)\n3. Only English names are allowed. (Case Insensitive)\n4. Failing to Guess or Wrong guess will end the game.\n```"
             embed.description = desc
             embed.add_field(name="Rules:", value=rules)
             embed.add_field(name="Good Luck!", value="\u200b", inline=False)
@@ -47,7 +48,7 @@ class Games(commands.Cog):
             embed = discord.Embed()
             embed.set_author(name="Who's that Pokémon?", icon_url="https://i.imgur.com/MItw5zU.png")
             embed.set_image(url=pokeImgWtp)
-            embed.set_footer(text=f"{ctx.author.name} | Current Score: {points} points", icon_url=ctx.author.avatar_url)
+            embed.set_footer(text=f"{ctx.author.name} | Current Score: {points} points", icon_url=ctx.author.avatar)
             x = await ctx.send(embed=embed)
                     
                 
@@ -60,27 +61,30 @@ class Games(commands.Cog):
                 embed = discord.Embed(description = f"{self.client.emotes.get('redtick', '')}  **You failed to guess {pokeName.title()}**")
                 embed.set_author(name="Who's that Pokémon?", icon_url="https://i.imgur.com/MItw5zU.png")
                 embed.set_image(url=pokeImgOrg)
-                embed.set_footer(text=f"{ctx.author.name} | Final Score: {points} points", icon_url=ctx.author.avatar_url)
+                embed.set_footer(text=f"{ctx.author.name} | Final Score: {points} points", icon_url=ctx.author.avatar)
                 await x.edit(embed=embed)
                 start = False
             else:
                 if msg.content.lower() == pokeName:
                     count += 1
                     points += 5
-                    time_left -= 0.25
+                    time_left -= 0.2
                     embed = discord.Embed(description = f"{self.client.emotes.get('greentick', '')} **Correct!! It's {pokeName.title()}**")
                     embed.set_author(name="Who's that Pokémon?", icon_url="https://i.imgur.com/MItw5zU.png")
                     embed.set_image(url=pokeImgOrg)
-                    embed.set_footer(text=f"{ctx.author.name} | Current Score: {points} points", icon_url=ctx.author.avatar_url)
+                    embed.set_footer(text=f"{ctx.author.name} | Current Score: {points} points", icon_url=ctx.author.avatar)
                     await x.edit(embed=embed)
                 else:
                     embed = discord.Embed(description = f"{self.client.emotes.get('redtick', '')}  **You failed to guess {pokeName.title()}**")
                     embed.set_author(name="Who's that Pokémon?", icon_url="https://i.imgur.com/MItw5zU.png")
                     embed.set_image(url=pokeImgOrg)
-                    embed.set_footer(text=f"{ctx.author.name} | Final Score: {points} points", icon_url=ctx.author.avatar_url)
+                    embed.set_footer(text=f"{ctx.author.name} | Final Score: {points} points", icon_url=ctx.author.avatar)
                     await x.edit(embed=embed)
                     start = False
-        if points > 130:
+
+        if points > 200:
+            txt = 'Marvelous'
+        elif points > 150:
             txt = 'Unbelievable'
         elif points > 100:
             txt = 'Fantastic'
@@ -90,18 +94,19 @@ class Games(commands.Cog):
             txt = 'Hello'
         embed = discord.Embed()
         embed.set_author(name="Who's that Pokémon?", icon_url="https://i.imgur.com/MItw5zU.png")
-        embed.set_thumbnail(url=ctx.author.avatar_url)
+        embed.set_thumbnail(url=ctx.author.avatar)
         embed.description = f"```{txt} {ctx.author.name}! You have guessed {count} pokemon(s) correctly and scored {points} points.```"
         await ctx.send(embed=embed)
         self.client.wtpList.remove(ctx.author.id)
         
     @commands.command(name = "10s")
+    @commands.guild_only()
     async def _10s(self, ctx):
         """Test your timing by reacting at 10 sec exact!"""
         embed = discord.Embed()
-        embed.set_author(name= "Reaction Game", icon_url= ctx.me.avatar_url)
+        embed.set_author(name= "Reaction Game", icon_url= ctx.me.avatar)
         embed.description = 'React to this message in exact 10 seconds.\n'
-        embed.set_footer(text = ctx.author, icon_url = ctx.author.avatar_url)
+        embed.set_footer(text = ctx.author, icon_url = ctx.author.avatar)
         x = await ctx.send(embed=embed)
         await x.add_reaction("\U0001f44d\U0001f3fb")
         t1 = datetime.utcnow()
@@ -120,13 +125,14 @@ class Games(commands.Cog):
             await x.edit(embed=embed)
             
     @commands.command()
+    @commands.guild_only()
     async def guess(self, ctx):
         """Number guessing game"""
         myGuess = random.randrange(1,10)
         embed = discord.Embed()
-        embed.set_author(name="Guess the Number?", icon_url=ctx.me.avatar_url)
+        embed.set_author(name="Guess the Number?", icon_url=ctx.me.avatar)
         embed.description = f"```Hello {ctx.author.name},\nI have guessed a number between 1 to 10. Let's see if you can guess the same number within 5 turns.```"
-        embed.set_footer(text = ctx.author, icon_url = ctx.author.avatar_url)
+        embed.set_footer(text = ctx.author, icon_url = ctx.author.avatar)
         await ctx.send(embed=embed)
         
         def check(message):
@@ -150,14 +156,15 @@ class Games(commands.Cog):
                     return await ctx.send(embed=embed)
     
     @commands.command()
+    @commands.guild_only()
     async def rps(self, ctx):
         """Rock-Paper-Scissors game"""
         reac = [f"{self.client.emotes.get('rpsrock','')}", f"{self.client.emotes.get('rpspaper','')}", f"{self.client.emotes.get('rpsscissors','')}"]
         mine = random.choice(reac)
         embed = discord.Embed()
-        embed.set_author(name="Rock Paper Scissors!", icon_url=ctx.me.avatar_url)
+        embed.set_author(name="Rock Paper Scissors!", icon_url=ctx.me.avatar)
         embed.description = "Okay! Let's see if you can beat me in Rock-Paper-Scissors game!\n\nI have made my move. It's your turn to choose one!"
-        embed.set_footer(text = ctx.author, icon_url = ctx.author.avatar_url)
+        embed.set_footer(text = ctx.author, icon_url = ctx.author.avatar)
         x = await ctx.send(embed = embed)
         [await x.add_reaction(r) for r in reac]
         
@@ -192,7 +199,7 @@ class Games(commands.Cog):
             await x.edit(embed=embed)
 
     @commands.command()
-    @commands.has_any_role('Contest', 'Admin', 'Mod')
+    @commands.guild_only()
     async def pkquiz(self, ctx, points_to_win = 5):
         """Guess the pokemon by dex entries."""
         if ctx.guild.id in self.client.activeQuiz:
@@ -215,6 +222,7 @@ class Games(commands.Cog):
             data = json.load(f)
 
         start = True
+        fail_count = 0
         points_table = {}
         while start:
             c = random.choice(list(data.keys()))
@@ -240,6 +248,7 @@ class Games(commands.Cog):
                 msg = await self.client.wait_for('message',check=check, timeout=60)
             except asyncio.TimeoutError:
                 _ = await ctx.send(f"You have failed to guess the answer: {answer}!")
+                fail_count += 1
 
             else:
                 if msg.content.lower() == answer.lower():
@@ -259,7 +268,10 @@ class Games(commands.Cog):
                 elif msg.content.lower() == "quit":
                     _ = await ctx.send("You have ended the quiz!!!")
                     start = False
-                    
+            
+            if fail_count >= 3:
+                start =  False
+                _ = await ctx.send("Ending the quiz due to multiple failed guesses!!!")
 
             if not start:
                 self.client.activeQuiz.remove(ctx.guild.id)
@@ -274,6 +286,10 @@ class Games(commands.Cog):
             await asyncio.sleep(7)
 
     @pkquiz.error
+    @_10s.error
+    @wtp.error
+    @rps.error
+    @guess.error
     async def games_error(self, ctx, error):
         if isinstance(error, commands.DisabledCommand):
             return

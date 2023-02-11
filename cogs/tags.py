@@ -30,7 +30,7 @@ class Tags(commands.Cog):
                 guildid = ctx.guild.id
                 op = tags.find_one({"tagname": tagname, "guild": guildid})
             else:
-                await ctx.send('`Please provide a tagname to display contents`', delete_after = 3)
+                await ctx.send("`Please provide a tagname to display it's contents.`", delete_after = 3)
                 return
             if op:
                 await ctx.send(op["tagcontent"])
@@ -98,7 +98,7 @@ class Tags(commands.Cog):
                     desc = desc[:4000] + "\n..."
 
                 embed.description = f"```{desc}```"
-                embed.set_footer(text=f"Tag Search | Found {len(op)} tags matching your search criteria", icon_url=ctx.me.avatar_url)
+                embed.set_footer(text=f"Tag Search | Found {len(op)} tags matching your search criteria", icon_url=ctx.me.avatar)
                 await ctx.send(embed = embed)
             
         else:
@@ -131,7 +131,7 @@ class Tags(commands.Cog):
                     desc = desc[:4000] + "\n..."
 
                 embed.description = f"```{desc}```"
-                embed.set_footer(text=f"Tag Search | Found {len(op)} tags matching your search criteria", icon_url=ctx.me.avatar_url)
+                embed.set_footer(text=f"Tag Search | Found {len(op)} tags matching your search criteria", icon_url=ctx.me.avatar)
                 await ctx.send(embed = embed)
             
         else:
@@ -198,13 +198,13 @@ class Tags(commands.Cog):
             user = self.client.get_user(op["tagowner"])
             embed = discord.Embed()
             if user:
-                embed.set_author(name = user, icon_url=user.avatar_url)
-            embed.title = f"Name: {op['tagname']}"
-            embed.description = f"{op['tagcontent']}"
+                embed.set_author(name = user, icon_url=user.avatar)
+            embed.description = f"{self.client.emotes.get('pin','')} **Tag Name:** {op['tagname']}\n"
+            embed.description += f"{self.client.emotes.get('stats','')} **Tag Content:**\n\n {op['tagcontent']}"
             embed.add_field(name="Owner:", value=f"{user.mention}", inline=True)
             embed.add_field(name="Guild ID:", value=f"{guildid}", inline=True)
             embed.add_field(name="Tag ID:", value=f"{str(op['_id'])[-6:]}", inline=True)
-            embed.set_footer(text = f"Requested by: {ctx.author}", icon_url=ctx.author.avatar_url)
+            embed.set_footer(text = f"Requested by: {ctx.author}", icon_url=ctx.author.avatar)
             await ctx.send(embed=embed)
         else:
             await ctx.send(f"{self.client.emotes.get('redtick','')} `Tag [{tagname}] doesn't exist!`")
@@ -221,13 +221,13 @@ class Tags(commands.Cog):
             user = self.client.get_user(op["tagowner"])
             embed = discord.Embed()
             if user:
-                embed.set_author(name = user, icon_url=user.avatar_url)
-            embed.title = f"Name: {op['tagname']}"
-            embed.description = f"{op['tagcontent']}"
+                embed.set_author(name = user, icon_url=user.avatar)
+            embed.description = f"{self.client.emotes.get('pin','')} **Tag Name:** {op['tagname']}\n"
+            embed.description += f"{self.client.emotes.get('stats','')} **Tag Content:**\n\n {op['tagcontent']}"
             embed.add_field(name="Owner:", value=f"{user.mention}", inline=True)
             embed.add_field(name="Guild ID:", value=f"{guildid}", inline=True)
             embed.add_field(name="Tag ID:", value=f"{str(op['_id'])[-6:]}", inline=True)
-            embed.set_footer(text = f"Requested by: {ctx.author}", icon_url=ctx.author.avatar_url)
+            embed.set_footer(text = f"Requested by: {ctx.author}", icon_url=ctx.author.avatar)
             await ctx.send(embed=embed)
         else:
             await ctx.send(f"{self.client.emotes.get('redtick','')} `Tag [{tagname}] doesn't exist!`")

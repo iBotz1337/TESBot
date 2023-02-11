@@ -8,12 +8,13 @@ class Moderation(commands.Cog):
 
     @commands.command(aliases = ['purge', 'del', 'clear'])
     @commands.check_any(commands.has_permissions(manage_messages = True), commands.is_owner())
+    @commands.guild_only()
     async def delete(self, ctx, lim: int = 10):
         """Deletes the given number of messages from current channel."""
         await ctx.message.delete()
         if lim <= 100:
             purged_messages = await ctx.channel.purge(limit = lim)
-            embed = discord.Embed(description = f'Hello {ctx.message.author.display_name},\n{len(purged_messages)} messages has been deleted from {ctx.channel.mention}.')
+            embed = discord.Embed(description = f'Hello {ctx.message.author.display_name},\n{len(purged_messages)} messages have been deleted from {ctx.channel.mention}.')
             x = await ctx.send(embed = embed)
             await asyncio.sleep(3)
             await x.delete()

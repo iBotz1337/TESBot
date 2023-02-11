@@ -12,7 +12,7 @@ class SnipeMenu(menus.Menu):
     
     def genEmbed(self):
         embed = discord.Embed()
-        embed.set_author(name="Snipe Menu", icon_url=self.ctx.me.avatar_url)
+        embed.set_author(name="Snipe Menu", icon_url=self.ctx.me.avatar)
         embed.description = f"Last {len(self.csn)} deleted messages in {self.ctx.channel.mention}."
         return embed
                     
@@ -30,7 +30,7 @@ class SnipeMenu(menus.Menu):
             links = [f"[attachment-{i+1}]({links[i]})" for i in range(len(links))]
             val = f"{', '.join(links)}"
             embed.add_field(name="\u200b", value=f"**Attachment(s)** {self.ctx.bot.emotes.get('arrowright','')}\n {val}", inline=False)
-        embed.set_footer(text = f"{self.ctx.author.name} | Snipe Menu | Page {self.pg + 1} of {len(self.csn)}", icon_url = self.ctx.author.avatar_url)
+        embed.set_footer(text = f"{self.ctx.author.name} | Snipe Menu | Page {self.pg + 1} of {len(self.csn)}", icon_url = self.ctx.author.avatar)
         return embed
                     
     def check(self, payload):
@@ -90,7 +90,7 @@ class ESnipeMenu(menus.Menu):
     
     def genEmbed(self):
         embed = discord.Embed()
-        embed.set_author(name="Esnipe Menu", icon_url=self.ctx.me.avatar_url)
+        embed.set_author(name="Esnipe Menu", icon_url=self.ctx.me.avatar)
         embed.description = f"Last {len(self.csn)} edited messages in {self.ctx.bot.emotes.get('textchannel','')}{self.ctx.channel.name}."
         return embed
                     
@@ -103,7 +103,7 @@ class ESnipeMenu(menus.Menu):
         val2 = f"{af.author.mention} {self.ctx.bot.emotes.get('arrowright','')}\n {af.content}"
         embed.add_field(name=f"{self.ctx.bot.emotes.get('message','')} Original Message", value=val1)
         embed.add_field(name=f"{self.ctx.bot.emotes.get('message','')} Edited Message", value=val2)
-        embed.set_footer(text = f"{self.ctx.author.name} | Esnipe Menu | Page {self.pg + 1} of {len(self.csn)}", icon_url = self.ctx.author.avatar_url)
+        embed.set_footer(text = f"{self.ctx.author.name} | Esnipe Menu | Page {self.pg + 1} of {len(self.csn)}", icon_url = self.ctx.author.avatar)
         return embed
                     
     def check(self, payload):
@@ -356,15 +356,15 @@ class Basic(commands.Cog):
         if self.client.inviteurl:
             desc += f"\n\n[Click here to join the Bot Testing Server!]({self.client.inviteurl})\n"
         embed = discord.Embed(description = desc, color = discord.Color.dark_teal())
-        embed.set_author(name = f"{ctx.me}", icon_url = ctx.me.avatar_url)
-        embed.set_thumbnail(url = ctx.me.avatar_url)
+        embed.set_author(name = f"{ctx.me}", icon_url = ctx.me.avatar)
+        embed.set_thumbnail(url = ctx.me.avatar)
         embed.add_field(name = f"{self.client.emotes.get('developer','')} Developer:", value = f"{owner.mention}", inline=True)
         embed.add_field(name = f"{self.client.emotes.get('bot','')} Bot ID:", value = f"`{self.client.user.id}`", inline=True)
         embed.add_field(name = f"{self.client.emotes.get('typing','')} Latency:", value = f"{self.client.emotes.get('arrowright','')}  {round(self.client.latency * 1000, 2)}ms", inline=True)
         embed.add_field(name = f"{self.client.emotes.get('discord','')} Servers:", value = f"{self.client.emotes.get('arrowright','')}  {len(self.client.guilds)}", inline=True)
         embed.add_field(name = f"{self.client.emotes.get('user','')} Members:", value = f"{self.client.emotes.get('arrowright','')}  {len(self.client.users)}", inline=True)
-        embed.add_field(name = f"{self.client.emotes.get('maintenance','')} Version:", value = f"{self.client.emotes.get('arrowright','')}  `2.0.0`", inline=True)
-        embed.set_footer(text = f"{owner}   •   {self.client.get_time}", icon_url=owner.avatar_url)
+        embed.add_field(name = f"{self.client.emotes.get('maintenance','')} Version:", value = f"{self.client.emotes.get('arrowright','')}  `2.1.0`", inline=True)
+        embed.set_footer(text = f"{owner}   •   {self.client.get_time}", icon_url=owner.avatar)
         await ctx.send(embed = embed)
 
     @commands.command(aliases = ["serverinfo", "si", "server_info"])
@@ -377,8 +377,8 @@ class Basic(commands.Cog):
         embed = discord.Embed(description = "**Roles:**\n" + roles,
                               color = discord.Color.dark_teal())
         embed.set_author(name = f"{ctx.guild.name}")
-        embed.set_thumbnail(url = ctx.guild.icon_url)
-        embed.set_image(url = ctx.guild.banner_url)
+        embed.set_thumbnail(url = ctx.guild.icon)
+        embed.set_image(url = ctx.guild.banner)
         embed.add_field(name = f"{self.client.emotes.get('owner','')} Owner:", value = f"{ctx.guild.owner.mention}", inline = False)
         embed.add_field(name = f"{self.client.emotes.get('arrowright','')} Members Count:", value = f"{self.client.emotes.get('user','')} **Users:** {mem_count}\n{self.client.emotes.get('bot','')} **Bots:** {bot_count}",
                         inline = False)
@@ -387,7 +387,7 @@ class Basic(commands.Cog):
                         inline = False)
         embed.add_field(name = f"{self.client.emotes.get('arrowright','')} Nitro Boosts:", value = f"{self.client.emotes.get('boost','')} {str(ctx.guild.premium_subscription_count)}", inline = False)
         embed.add_field(name = f"{self.client.emotes.get('arrowright','')} Created on:",
-                        value = f"{str(ctx.guild.created_at.date())} ({(datetime.now() - ctx.guild.created_at).days} days ago)",
+                        value = f"{str(ctx.guild.created_at.date())} ({(discord.utils.utcnow() - ctx.guild.created_at).days} days ago)",
                         inline = False)
         await ctx.send(embed = embed)
 
@@ -406,8 +406,8 @@ class Basic(commands.Cog):
                         for att in msg.attachments:
                             links.append(att.proxy_url)
                     embed = discord.Embed(description = f"{self.client.emotes.get('textchannel','')} **Channel:** {msg.channel.mention}\n{self.client.emotes.get('message','')} **Message:**\n{msg.content}")
-                    embed.set_author(name = msg.author.name, icon_url = msg.author.avatar_url)
-                    embed.set_footer(text = f"Snipe Request: {ctx.author.name}", icon_url = ctx.author.avatar_url)
+                    embed.set_author(name = msg.author.name, icon_url = msg.author.avatar)
+                    embed.set_footer(text = f"Snipe Request: {ctx.author.name}", icon_url = ctx.author.avatar)
                     if links:
                         embed.set_image(url = links[0])
         
@@ -445,8 +445,8 @@ class Basic(commands.Cog):
                     msg = csn[-1]
                     bf, af = msg["before"], msg["after"]
                     embed = discord.Embed(description = f"{self.client.emotes.get('textchannel','')} **Channel:** {ctx.channel.mention}\n\n{self.client.emotes.get('message','')} **Original Message:**\n{bf.content}\n\n{self.client.emotes.get('message','')} **Edited Message:**\n{af.content}\n\n{self.client.emotes.get('arrowright','')} [Jump to the message]({bf.jump_url})")
-                    embed.set_author(name = bf.author.name, icon_url = bf.author.avatar_url)
-                    embed.set_footer(text = f"Esnipe Request: {ctx.author.name}", icon_url = ctx.author.avatar_url)
+                    embed.set_author(name = bf.author.name, icon_url = bf.author.avatar)
+                    embed.set_footer(text = f"Esnipe Request: {ctx.author.name}", icon_url = ctx.author.avatar)
                     await ctx.send(embed=embed)
                 else:
                     await ctx.send("`There\'s nothing to snipe here!`")
@@ -503,17 +503,17 @@ class Basic(commands.Cog):
 
         embed = discord.Embed(description = desc,
                               color = discord.Color.teal())
-        embed.set_author(name = member.name, icon_url = member.avatar_url)
+        embed.set_author(name = member.name, icon_url = member.avatar)
         embed.add_field(name = f"{self.client.emotes.get('arrowright','')} Status: ", value = f"{self.client.emotes.get(str(member.status),'')} " + str(member.status).title(), inline = False)
         embed.add_field(name = f"{self.client.emotes.get('arrowright','')} Activity: ", value = str(member.activity).title(), inline = False)
         embed.add_field(name = f"{self.client.emotes.get('arrowright','')} Joined Discord: ",
-                        value = f"{self.client.emotes.get('in','')} {member.created_at.date()} ({(datetime.now() - member.created_at).days} Days ago)",
+                        value = f"{self.client.emotes.get('in','')} {member.created_at.date()} ({(discord.utils.utcnow() - member.created_at).days} Days ago)",
                         inline = False)
         embed.add_field(name = f"{self.client.emotes.get('arrowright','')} Joined {ctx.guild.name}: ",
-                        value = f"{self.client.emotes.get('in', '')} {member.joined_at.date()} ({(datetime.now() - member.joined_at).days} Days ago)",
+                        value = f"{self.client.emotes.get('in', '')} {member.joined_at.date()} ({(discord.utils.utcnow() - member.joined_at).days} Days ago)",
                         inline = False)
         embed.add_field(name = f"{self.client.emotes.get('arrowright','')} Nickname: ", value = member.nick, inline = False)
-        embed.set_thumbnail(url = member.avatar_url)
+        embed.set_thumbnail(url = member.avatar)
         await ctx.send(embed = embed)
 
     @commands.command(aliases = ["av", "pfp"])
@@ -521,8 +521,8 @@ class Basic(commands.Cog):
         """Displays user avatar."""
         if not member:
             member = ctx.author
-        ext = "gif" if member.is_avatar_animated() else "png"
-        file = discord.File(io.BytesIO(await member.avatar_url.read()), f"{ctx.author.id}.{ext}")
+        ext = "gif" if member.avatar.is_animated() else "png"
+        file = discord.File(io.BytesIO(await member.avatar.read()), f"{ctx.author.id}.{ext}")
         embed = discord.Embed()
         embed.set_image(url= f"attachment://{ctx.author.id}.{ext}")
         await ctx.send(file=file, embed=embed)
@@ -631,13 +631,14 @@ class Basic(commands.Cog):
                 await ctx.send(embed=embed)
     
     @commands.command()
+    @commands.guild_only()
     async def poll(self, ctx, *, details = ""):
         """Creates a Poll with the given details."""
         if details:
             embed = discord.Embed()
             embed.description = details
-            embed.set_author(name=f"Poll by: {ctx.author}", icon_url= ctx.author.avatar_url)
-            embed.set_footer(text=f"Created on: {self.client.get_time}", icon_url=ctx.me.avatar_url)
+            embed.set_author(name=f"Poll by: {ctx.author}", icon_url= ctx.author.avatar)
+            embed.set_footer(text=f"Created on: {self.client.get_time}", icon_url=ctx.me.avatar)
             reac = [self.client.emotes.get("upvote",""), self.client.emotes.get("downvote")]
             try:
                 await ctx.message.delete()
@@ -659,6 +660,7 @@ class Basic(commands.Cog):
     @meme.error
     @google.error
     @calculate.error
+    @server.error
     @poll.error
     async def basic_error(self, ctx, error):
         if isinstance(error, commands.DisabledCommand):

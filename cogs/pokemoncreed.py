@@ -42,7 +42,7 @@ class BoxMenu(menus.Menu):
                 mytext += f"(This box contains {self.pkcount} colored pokemons)\n\n"
                 pokes = [poke for lst in self.results for poke in lst]
                 mytext += "\n".join(pokes)
-                mytext += "\n\n>> Box organizer by TES Bot <<"
+                mytext += "\n\n>> Box organizer by EliteBOT <<"
                 self.pasteURL = await self.mystbin(mytext)
 
         else:
@@ -60,20 +60,20 @@ class BoxMenu(menus.Menu):
             embed = discord.Embed()
             embed.set_author(name = "Box of " + self.uname + ' - #' + self.uid)
             embed.description = self.desc
-            embed.set_footer(text=f"Box Organizer", icon_url= self.ctx.me.avatar_url)
+            embed.set_footer(text=f"Box Organizer", icon_url= self.ctx.me.avatar)
             return embed
 
         if result is None:
             embed = discord.Embed()
             embed.set_author(name = "Username not found")
             embed.description = self.desc
-            embed.set_footer(text=f"Box Organizer", icon_url= self.ctx.me.avatar_url)
+            embed.set_footer(text=f"Box Organizer", icon_url= self.ctx.me.avatar)
             return embed
 
         embed = self.genEmbed()
         self.desc = f"**(This box contains {self.pkcount} colored pokemons)**\n[Click here to get the complete list!]({self.pasteURL})\n\n"
         embed.description = self.desc + "\n".join(result[pg])
-        embed.set_footer(text=f"Box Organizer | Page {pg+1} of {len(result)}", icon_url= self.ctx.me.avatar_url)
+        embed.set_footer(text=f"Box Organizer | Page {pg+1} of {len(result)}", icon_url= self.ctx.me.avatar)
         return embed
                     
     def check(self, payload):
@@ -186,6 +186,10 @@ class PokemonCreed(commands.Cog):
     @property
     def get_promo_channel(self):
         return self.client.get_channel(781395831353638942)
+    
+    @property
+    def get_promo_channel2(self):
+        return self.client.get_channel(1073949084244770856)
 
     async def scrape_hd(self):
         cred = os.environ.get('CREED_LOGIN').split(',')
@@ -269,6 +273,7 @@ class PokemonCreed(commands.Cog):
     @tasks.loop(seconds = 10)
     async def promoBGTask(self):
         promo_channel = self.get_promo_channel
+        promo_channel2 = self.get_promo_channel2
         async with aiohttp.ClientSession() as session:
             async with session.get(f"https://pokemoncreed.net/ajax/pokedex.php?pokemon=promo") as r:
                 data = await r.text()
@@ -284,6 +289,7 @@ class PokemonCreed(commands.Cog):
             embed.set_image(url = f"https://pokemoncreed.net/sprites/{self.Promo}.png")
             embed.set_footer(text = f"{self.Promo} | {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}", icon_url = f"https://pokemoncreed.net/img/icon/{self.Promo}.gif")
             await promo_channel.send(f"@everyone New Promo: {self.Promo}", embed = embed)
+            await promo_channel2.send(f"@everyone New Promo: {self.Promo}", embed = embed)
 
     @promoBGTask.before_loop
     async def before_promoBGTask(self):
@@ -618,7 +624,7 @@ class PokemonCreed(commands.Cog):
         rates = []
         desc = f"{self.client.emotes.get('loading','')} Computing rates...\n(This might take some time!)"
         embed = discord.Embed(description = desc)
-        embed.set_author(name = "TES Bot (Pokemon Rater)", icon_url = ctx.me.avatar_url)
+        embed.set_author(name = "TES Bot (Pokemon Rater)", icon_url = ctx.me.avatar)
         m = await ctx.send(embed = embed)
         for pk in pkmn:
             tmp = pk.split('*')
@@ -653,8 +659,8 @@ class PokemonCreed(commands.Cog):
 
         if not_considered:
             embed.add_field(name = "Below pokemon(s) are not considered:", value = "\n".join(not_considered))
-        embed.set_author(name = "TES Bot (Pokemon Rater)", icon_url = ctx.me.avatar_url)
-        embed.set_footer(text = f'Requested by {ctx.author.name}', icon_url = ctx.author.avatar_url)
+        embed.set_author(name = "TES Bot (Pokemon Rater)", icon_url = ctx.me.avatar)
+        embed.set_footer(text = f'Requested by {ctx.author.name}', icon_url = ctx.author.avatar)
         await m.edit(embed = embed)
 
     # <# Pokemon Creed Error Handler - Start #>

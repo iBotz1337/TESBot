@@ -2,6 +2,7 @@ import os, discord, asyncio
 from discord.ext import commands
 from datetime import datetime
 from pymongo import MongoClient
+from discord import app_commands
 #import secret
 
 try:
@@ -21,7 +22,7 @@ class MyBot(commands.Bot):
     ownerid = 510664110669561856
     inviteurl = ""
     boxrateconfig = {"base": 1, "unbase": 0.8, "other": 5}
-    raids_config = {'category_id': 1043874022552780880, 
+    raids_config = {'category_id': [1043874022552780880], 
                     '10_shards_raids_ch': 1071627979110760499,
                     '2_shards_raids_ch': 1072353312164298833,
                     '10_shards_raids': ['articuno', 'mew', 'mewtwo', 'celebi', 'deoxys', 'uxie', 'mesprit', 'azelf', 'cresselia', 'heatran', 'phione', 'manaphy', 'shaymin', 'virizion', 'genesect', 'keldeo', 'diancie', 'hoopa', 'tapu lele', 'lunala', 'nihilego', 'pheromosa', 'kartana', 'necrozma', 'poipole', 'naganadel', 'stakataka', 'blacephalon', 'xurkitree', 'melmetal', 'zarude', 'calyrex', 'enamorus', 'wo-chien', 'chien-pao', 'chi-yu', 'rapid strike style urshifu', 'gigantamax rapid strike style urshifu', 'single strike urshifu'],
@@ -72,9 +73,15 @@ async def get_prefix(client, message):
 # Creating the Bot using MyBot class
 client = MyBot(command_prefix = get_prefix, intents = discord.Intents.all())
 
+
+@client.tree.command(name="ping", description="shows the bot latency.")
+async def _ping(interaction: discord.Interaction):
+    await interaction.response.send_message(f"{client.emotes.get('typing','')} `Pong! {round(client.latency * 1000, 2)}ms.`")
+
 @client.event
 async def on_ready():
-    await client.change_presence(status = discord.Status.online, activity = discord.Game('Pokemon Creed!'))
+    #await client.change_presence(status = discord.Status.online, activity = discord.Game('Pokemon Creed!'))
+    await client.change_presence(status = discord.Status.dnd, activity = discord.Game('with EliteBOY'))
     print('The Bot is online.')
 
 @client.event
@@ -85,7 +92,7 @@ async def on_message(message):
         if message.author.id != client.ownerid:
             return
 
-    if message.channel.category_id == client.raids_config["category_id"]:
+    if message.channel.category_id in client.raids_config["category_id"]:
         if message.embeds:
             embed = message.embeds[0]
             if "Raid Announcement" in embed.title:

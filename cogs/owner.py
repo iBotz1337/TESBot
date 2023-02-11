@@ -26,7 +26,7 @@ class Owner(commands.Cog):
                 embed = discord.Embed()
                 embed.title = f"{self.client.emotes.get('loading','')} Imgur - Upload"
                 embed.description = f"```Upload in progress...\nThis might take some time...\nLinks will be available here soon!```"
-                embed.set_footer(text = f'Requested By: {ctx.author.name}', icon_url = ctx.author.avatar_url)
+                embed.set_footer(text = f'Requested By: {ctx.author.name}', icon_url = ctx.author.avatar)
                 embed.set_thumbnail(url = 'https://i.imgur.com/kotofyF.png')
                 x = await ctx.send(embed = embed)
                 await ctx.message.delete()
@@ -42,7 +42,7 @@ class Owner(commands.Cog):
                     desc = f"" + '\n'.join(uploadedURLs)
                     embed.title = f"{self.client.emotes.get('greentick','')} Image(s) uploaded to imgur.com"
                     embed.description = "```" + desc + "```"
-                    embed.set_footer(text = f'Upload Count: {len(uploadedURLs)} | Requested By: {ctx.author.name}', icon_url = ctx.author.avatar_url)
+                    embed.set_footer(text = f'Upload Count: {len(uploadedURLs)} | Requested By: {ctx.author.name}', icon_url = ctx.author.avatar)
                     embed.set_thumbnail(url = 'https://i.imgur.com/kotofyF.png')
                     await x.edit(embed = embed)
 
@@ -56,7 +56,7 @@ class Owner(commands.Cog):
     async def load(self, ctx, extension):
         """Loads the given extension."""
         try:
-            self.client.load_extension(f'cogs.{extension}')
+            await self.client.load_extension(f'cogs.{extension}')
             await ctx.send(f"{self.client.emotes.get('greentick','')} `Hi {ctx.author.name}, Successfully loaded [{extension}] extension.`")
         except commands.ExtensionAlreadyLoaded:
             await ctx.send(f"{self.client.emotes.get('alert','')} `Hi {ctx.author.name}, [{extension}] extension is already loaded.`")
@@ -71,7 +71,7 @@ class Owner(commands.Cog):
             await ctx.send(f"{self.client.emotes.get('redtick','')} `Hi {ctx.author.name}, [{extension}] extension cannot be unloaded! You can use reload command.`")
             return
         try:
-            self.client.unload_extension(f'cogs.{extension}')
+            await self.client.unload_extension(f'cogs.{extension}')
             await ctx.send(f"{self.client.emotes.get('greentick','')} `Hi {ctx.author.name}, Successfully unloaded [{extension}] extension.`")
         except commands.ExtensionNotLoaded:
             await ctx.send(f"{self.client.emotes.get('redtick','')} `Hi {ctx.author.name}, Cannot unload an extension which is not loaded at all.`")
@@ -83,12 +83,12 @@ class Owner(commands.Cog):
     async def reload(self, ctx, extension):
         """Reloads the given extension."""
         try:
-            self.client.unload_extension(f'cogs.{extension}')
-            self.client.load_extension(f'cogs.{extension}')
+            await self.client.unload_extension(f'cogs.{extension}')
+            await self.client.load_extension(f'cogs.{extension}')
             await ctx.send(f"{self.client.emotes.get('greentick','')} `Hi {ctx.author.name}, Successfully reloaded [{extension}] extension.`")
         except commands.ExtensionNotLoaded:
             try:
-                self.client.load_extension(f'cogs.{extension}')
+                await self.client.load_extension(f'cogs.{extension}')
                 await ctx.send(f"{self.client.emotes.get('greentick','')} `Hi {ctx.author.name}, Successfully reloaded [{extension}] extension.`")
             except commands.ExtensionNotFound:
                 await ctx.send(f"{self.client.emotes.get('redtick','')} `Hi {ctx.author.name}, [{extension}] extension not found.`")
@@ -125,7 +125,7 @@ class Owner(commands.Cog):
     async def enable(self, ctx, cmd_name):
         """Enables the given command."""
         if cmd_name:
-            cmd = self.client.get_command(cmd_name)
+            cmd = self.client.get_command(cmd_name.lower())
         else:
             embed = discord.Embed(description = f'Hello {ctx.author.name}, Please provide a valid command to `enable`',
                                   color = discord.Color.red())
@@ -143,7 +143,7 @@ class Owner(commands.Cog):
                                       color = discord.Color.red())
                 await ctx.send(embed = embed)
         else:
-            embed = discord.Embed(description = f'Hello {ctx.author.name}, Command: `{cmd.name}` Not Found.',
+            embed = discord.Embed(description = f'Hello {ctx.author.name}, Command: `{cmd.name}` Not Found!',
                                   color = discord.Color.red())
             await ctx.send(embed = embed)
 
@@ -255,14 +255,14 @@ class Owner(commands.Cog):
         
     @commands.command(hidden = True, name = 'semo')
     @commands.is_owner()
-    async def _send(self, ctx, name):
+    async def _send_emoji(self, ctx, name):
         """Sends the emoji from bot database."""
         emo = self.client.emotes.get(name, None)
         if emo:
             return await ctx.send(emo)
         return await ctx.send('`no emoji`')
         
-    @commands.command(aliases = ["mystbin"])
+    @commands.command(hidden = True, aliases = ["mystbin"])
     async def myst(self, ctx, * , text = ""):
         """Uploads your text to https://mystb.in/ and generates shareable link."""
         async with aiohttp.ClientSession() as session:
@@ -274,8 +274,9 @@ class Owner(commands.Cog):
                 else:
                     await ctx.send("FAIL")
 
-    @commands.command(hidden = True)
-    async def nums(self, ctx, *, data = ""):
+    @commands.command(hidden = True, aliases = ['release', 'recycle'])
+    async def _numbers(self, ctx, *, data = ""):
+        """generates numbers to release/recycle the pokemons for @Pokemon#8738 bot."""
         if data:
             count = []
             for line in data.splitlines():
@@ -289,6 +290,13 @@ class Owner(commands.Cog):
         else:
             await ctx.message.delete()
             await ctx.send("No numbers")
+    
+    @commands.command(hidden = True, name = 'sync')
+    @commands.is_owner()
+    async def _sync(self, ctx):
+        """sync app_commands globally"""
+        await self.client.tree.sync()
+        await ctx.send("Application commands synchronization successful!")
 
     # <# EliteBOY Command: Error Handler - Start #>
 
@@ -302,7 +310,8 @@ class Owner(commands.Cog):
     @block.error
     @unblock.error
     @myst.error
-    @nums.error
+    @_numbers.error
+    @_sync.error
     async def owner_error(self, ctx, error):
         if isinstance(error, commands.DisabledCommand):
             return
