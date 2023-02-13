@@ -1,8 +1,9 @@
-import os, discord, asyncio
+import os, discord, asyncio, requests, shutil, hashlib, io
 from discord.ext import commands
 from datetime import datetime
 from pymongo import MongoClient
 from discord import app_commands
+from PIL import Image
 #import secret
 
 try:
@@ -20,9 +21,10 @@ class MyBot(commands.Bot):
     esnipes = {}
     disabledCogs = ['cogs.test']
     ownerid = 510664110669561856
+    tutors = [510664110669561856]
     inviteurl = ""
     boxrateconfig = {"base": 1, "unbase": 0.8, "other": 5}
-    raids_config = {'category_id': [1043874022552780880], 
+    raids_config = {'category_id': [1043874022552780880, 1065988552338452501], 
                     '10_shards_raids_ch': 1071627979110760499,
                     '2_shards_raids_ch': 1072353312164298833,
                     '10_shards_raids': ['articuno', 'mew', 'mewtwo', 'celebi', 'deoxys', 'uxie', 'mesprit', 'azelf', 'cresselia', 'heatran', 'phione', 'manaphy', 'shaymin', 'virizion', 'genesect', 'keldeo', 'diancie', 'hoopa', 'tapu lele', 'lunala', 'nihilego', 'pheromosa', 'kartana', 'necrozma', 'poipole', 'naganadel', 'stakataka', 'blacephalon', 'xurkitree', 'melmetal', 'zarude', 'calyrex', 'enamorus', 'wo-chien', 'chien-pao', 'chi-yu', 'rapid strike style urshifu', 'gigantamax rapid strike style urshifu', 'single strike urshifu'],
@@ -57,6 +59,31 @@ class MyBot(commands.Bot):
     @property
     def get_time(self):
         return datetime.now().strftime("%d %b, %Y | %I:%M:%S %p")
+    
+    @classmethod
+    def hashit(self, img_url):
+        r = requests.get(img_url, stream=True)
+        imghash = None
+        try:
+            #download if its able to/output error if not
+            if r.status_code == 200:
+                r.raw.decode_content = True
+                with open("spawn.png", "wb") as f:
+                    shutil.copyfileobj(r.raw, f)
+            else:
+                print("Image Couldn't be retreived")
+            #hash imgage
+            img = Image.open("spawn.png")
+            m = hashlib.md5()
+            with io.BytesIO() as memf:
+                img.save(memf, "PNG")
+                data = memf.getvalue()
+                m.update(data)
+                imghash = m.hexdigest()
+        except Exception as e:
+            print(str(e))
+            
+        return imghash
         
 async def get_prefix(client, message):
     if not message.guild:
@@ -130,7 +157,7 @@ os.environ["JISHAKU_HIDE"]="True"
 
 
 async def main():
-    extensions = ['cogs.basic', 'cogs.error', 'cogs.games', 'cogs.moderation', 'cogs.tags', 'cogs.owner', 'cogs.pokemoncreed', 'cogs.test', 'jishaku']
+    extensions = ['cogs.basic', 'cogs.error', 'cogs.games', 'cogs.moderation', 'cogs.tags', 'cogs.owner', 'cogs.pokemoncreed', 'cogs.pokename', 'jishaku']
     async with client:
         for extension in extensions:
             if extension not in client.disabledCogs:
