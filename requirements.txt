@@ -7,3 +7,7 @@ imgurpython
 async-cse
 git+https://github.com/Rapptz/discord-ext-menus
 jishaku
+Pillow
+shutil
+hashlib
+io
