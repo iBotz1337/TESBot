@@ -68,12 +68,12 @@ class MyBot(commands.Bot):
             #download if its able to/output error if not
             if r.status_code == 200:
                 r.raw.decode_content = True
-                with open("spawn.png", "wb") as f:
+                with open("./files/spawn.png", "wb") as f:
                     shutil.copyfileobj(r.raw, f)
             else:
                 print("Image Couldn't be retreived")
             #hash imgage
-            img = Image.open("spawn.png")
+            img = Image.open("./files/spawn.png")
             m = hashlib.md5()
             with io.BytesIO() as memf:
                 img.save(memf, "PNG")

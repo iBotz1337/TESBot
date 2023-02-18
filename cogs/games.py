@@ -33,7 +33,7 @@ class Games(commands.Cog):
             return
             
         self.client.wtpList.append(ctx.author.id)
-        with open('wtpNames.json','r') as f:
+        with open('./files/wtpNames.json','r') as f:
             wtpData = json.load(f)
         start = True
         points = 0
@@ -218,7 +218,7 @@ class Games(commands.Cog):
 
         
 
-        with open("dex_entries.json","r") as f:
+        with open("./files/dex_entries.json","r") as f:
             data = json.load(f)
 
         start = True

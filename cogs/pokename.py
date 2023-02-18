@@ -1,6 +1,5 @@
-import discord, os, random, requests, async_cse, asyncio, io
-from datetime import datetime
-from discord.ext import commands, menus
+import discord, os
+from discord.ext import commands
 from pymongo import MongoClient
 
 class Pokename(commands.Cog):
