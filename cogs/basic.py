@@ -1,6 +1,5 @@
 import discord, os, random, requests, async_cse, asyncio, io
 from discord.ext import commands, menus
-from pymongo import MongoClient
 
 class SnipeMenu(menus.Menu):
     def __init__(self, ctx, csn):
@@ -238,17 +237,11 @@ class Basic(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    try:
-        mclient = MongoClient(os.environ.get('mongodb'))
-        db = mclient.get_database("my_db")
-    except:
-        print('Cannot connect to MongoDB at the moment!')
-
     # <# Event: On Guild Join - Start #>
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
-        prefixes = self.db.get_collection("prefixes")
+        prefixes = self.client.db.get_collection("prefixes")
         p = prefixes.find_one({"serverid": guild.id})
         if not p:
             prefixes.insert_one({"serverid": guild.id, "prefix": "!"})
@@ -259,7 +252,7 @@ class Basic(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
-        prefixes = self.db.get_collection("prefixes")
+        prefixes = self.client.db.get_collection("prefixes")
         p = prefixes.find_one({"serverid": guild.id})
         if p:
             prefixes.delete_one({"serverid": guild.id})
@@ -324,7 +317,7 @@ class Basic(commands.Cog):
                 await x.edit(embed = embed)
             else:
                 if any(i == msg.content.lower() for i in ["y", "yes", "confirm"]):
-                    prefixes = self.db.get_collection("prefixes")
+                    prefixes = self.client.db.get_collection("prefixes")
                     p = prefixes.find_one({"serverid": ctx.guild.id})
                     prefixes.update_one({"serverid": ctx.guild.id}, {"$set": {"prefix": new_prefix}})
                     desc = f"{self.client.emotes.get('accepted','')} Command prefix changed to {self.client.emotes.get('arrowright','**')} {new_prefix} {self.client.emotes.get('arrowleft','**')}"

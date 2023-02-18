@@ -1,18 +1,10 @@
 import discord, json, os, random
-from pymongo import MongoClient
 from discord.ext import commands
 
 class Tags(commands.Cog):
     """Commands related to tags are here"""
     def __init__(self, client):
         self.client = client
-
-    try:
-        mclient = MongoClient(os.environ.get('mongodb'))
-        db = mclient.get_database("my_db")
-    except:
-        print('Cannot connect to MongoDB at the moment!')
-
 
     @commands.group(aliases = ['t'])
     async def tag(self, ctx):
@@ -24,7 +16,7 @@ class Tags(commands.Cog):
             else:
                 tagname = ""
             #await ctx.send(tagname)
-            tags = self.db.get_collection("tags")
+            tags = self.client.db.get_collection("tags")
             if tagname:
                 tagname = tagname.lower()
                 guildid = ctx.guild.id
@@ -41,7 +33,7 @@ class Tags(commands.Cog):
     @commands.check_any(commands.has_permissions(manage_messages = True), commands.is_owner())
     async def tag_create(self, ctx, *, tagdetails):
         """Creates a new tag. Ex: !tag create <tagname> || <tagcontent>"""
-        tags = self.db.get_collection("tags")
+        tags = self.client.db.get_collection("tags")
         #result = [tag for tag in tags.find({'tagname': {'$regex': '.*'}})]
 
         if "||" in tagdetails:
@@ -76,7 +68,7 @@ class Tags(commands.Cog):
     @tag.command(name = "search")
     async def tag_search(self, ctx, *, tagname):
         """Searches for a tag and displays results."""
-        tags = self.db.get_collection("tags")
+        tags = self.client.db.get_collection("tags")
         tagname = tagname.lower()
         guildid = ctx.guild.id
         op = list(tags.find({'tagname': {'$regex': tagname}, "guild": guildid}))
@@ -110,7 +102,7 @@ class Tags(commands.Cog):
     @commands.is_owner()
     async def tag_searchall(self, ctx, *, tagname):
         """Searches for a tag and displays results. -- owner only"""
-        tags = self.db.get_collection("tags")
+        tags = self.client.db.get_collection("tags")
         tagname = tagname.lower()
         op = list(tags.find({'tagname': {'$regex': tagname}}))
 
@@ -143,7 +135,7 @@ class Tags(commands.Cog):
     @commands.check_any(commands.has_permissions(manage_messages = True), commands.is_owner())
     async def tag_edit(self, ctx, *, tagdetails):
         """Edits the content of an existing tag. Ex: !tag edit <tagname> || <newtagcontents>"""
-        tags = self.db.get_collection("tags")
+        tags = self.client.db.get_collection("tags")
 
         if "||" in tagdetails:
             tagname, tagcontent = tagdetails.split("||", maxsplit = 1)
@@ -173,7 +165,7 @@ class Tags(commands.Cog):
     @commands.check_any(commands.has_permissions(manage_messages = True), commands.is_owner())
     async def tag_delete(self, ctx, *, tagname):
         """Deletes a tag."""
-        tags = self.db.get_collection("tags")
+        tags = self.client.db.get_collection("tags")
         tagname = tagname.lower()
         guildid = ctx.guild.id
         op = tags.find_one({"tagname": tagname, "guild":guildid})
@@ -190,7 +182,7 @@ class Tags(commands.Cog):
     @commands.check_any(commands.has_permissions(manage_messages = True), commands.is_owner())
     async def tag_info(self, ctx, *, tagname):
         """Shows information about the given tag."""
-        tags = self.db.get_collection("tags")
+        tags = self.client.db.get_collection("tags")
         tagname = tagname.lower().strip()
         guildid = ctx.guild.id
         op = tags.find_one({"tagname": tagname, "guild":guildid})
@@ -213,7 +205,7 @@ class Tags(commands.Cog):
     @commands.is_owner()
     async def tag_infoall(self, ctx, *, tagname):
         """Shows information about the given tag. -- owner only"""
-        tags = self.db.get_collection("tags")
+        tags = self.client.db.get_collection("tags")
         tagname = tagname.lower().strip()
         guildid = ctx.guild.id
         op = tags.find_one({"tagname": tagname})

@@ -1,18 +1,11 @@
 import discord, sqlite3, json, re, os, asyncio, aiohttp
 from discord.ext import commands
 from imgurpython import ImgurClient
-from pymongo import MongoClient
 
 class Owner(commands.Cog):
     """Exclusive commands for EliteBOY"""
     def __init__(self, client):
         self.client = client
-
-    try:
-        mclient = MongoClient(os.environ.get("mongodb"))
-        db = mclient.get_database("my_db")
-    except:
-        print("Cannot connect to MongoDB at the moment!")
 
     @commands.command(hidden = True, aliases = ['imgur'])
     @commands.is_owner()
@@ -213,7 +206,7 @@ class Owner(commands.Cog):
     @commands.is_owner()
     async def block(self, ctx, member: discord.Member):
         """Adds the member to the blocklist."""
-        blocklist = self.db.get_collection("blocklist")
+        blocklist = self.client.db.get_collection("blocklist")
         mem = blocklist.find_one({"userid": member.id})
         if not mem:
             blocklist.insert_one({"userid": member.id})
@@ -226,7 +219,7 @@ class Owner(commands.Cog):
     @commands.is_owner()
     async def unblock(self, ctx, member: discord.Member):
         """Removes the member from the blocklist."""
-        blocklist = self.db.get_collection("blocklist")
+        blocklist = self.client.db.get_collection("blocklist")
         mem = blocklist.find_one({"userid": member.id})
         if mem:
             blocklist.delete_one({"userid": member.id})
@@ -241,14 +234,9 @@ class Owner(commands.Cog):
     @commands.is_owner()
     async def upload_emoji(self, ctx, name: str, *, emoji: str):
         """Adds the emoji to bot database!"""
-        try:
-            mclient = MongoClient(os.environ.get('mongodb'))
-            db = mclient.my_db
-        except:
-            return await ctx.send('Cannot connect to mongodb at the moment.')
         
         r = {'name' : name, 'emoji' : emoji.replace("`","")}
-        table = db["emojis"]
+        table = self.client.db["emojis"]
         table.insert_one(r)
         self.client.update_cache
         await ctx.send(f"Emoji uploaded successfully!\n```{r}```")

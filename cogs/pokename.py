@@ -1,18 +1,10 @@
 import discord, os
 from discord.ext import commands
-from pymongo import MongoClient
 
 class Pokename(commands.Cog):
 
     def __init__(self, client):
         self.client = client
-
-    try:
-        mclient = MongoClient(os.environ.get('mongodb'))
-        db = mclient.get_database("my_db")
-    except:
-        print('Cannot connect to MongoDB at the moment!')
-
 
     @commands.command(aliases = ["itz", "this"])
     @commands.guild_only()
@@ -33,7 +25,7 @@ class Pokename(commands.Cog):
                     wildPoke = ref_embeds[0].to_dict()
                     if "Guess the pokémon" in str(wildPoke):
                         ref_image_url = ref_embeds[0].image.url
-                        pokename = self.db.get_collection("pokename")
+                        pokename = self.client.db.get_collection("pokename")
                         poke_record = pokename.find_one({"name": "all_mons"})
 
                         if pokemon.lower() in poke_record["value"]:

@@ -11,6 +11,11 @@ class Test(commands.Cog):
     def __init__(self, client):
         self.client = client
 
+    @commands.command()
+    async def pong(self, ctx):
+        """Displays Bot latency."""
+        await ctx.send(f"{self.client.emotes.get('typing','')} `Pong! {round(self.client.latency * 1000, 2)}ms.`")
+
 
 async def setup(client):
     await client.add_cog(Test(client))

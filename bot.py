@@ -6,12 +6,6 @@ from discord import app_commands
 from PIL import Image
 #import secret
 
-try:
-    mclient = MongoClient(os.environ.get('mongodb'))
-    db = mclient.get_database("my_db")
-except:
-    print('Cannot connect to MongoDB at the moment!')
-
 class MyBot(commands.Bot):
     #Declare Bot variables here (can be accesses in cogs using self.client.variable)
     launch_time = datetime.utcnow()
@@ -19,7 +13,7 @@ class MyBot(commands.Bot):
     activeQuiz = []
     snipes = {}
     esnipes = {}
-    disabledCogs = ['cogs.test']
+    disabledCogs = ['cogs.test'] #add cogs.test here
     ownerid = 510664110669561856
     tutors = [510664110669561856]
     inviteurl = ""
@@ -39,21 +33,21 @@ class MyBot(commands.Bot):
     @property
     def emotes(self):
         if self._cache_emoji is None:
-            records = db.emojis.find()
+            records = self.db.emojis.find()
             self._cache_emoji = {r['name'] : r['emoji'] for r in records}
         return self._cache_emoji
         
     @property
     def blocklist(self):
         if self._cache_block is None:
-            records = db.blocklist.find()
+            records = self.db.blocklist.find()
             self._cache_block = [r['userid'] for r in records]
         return self._cache_block
         
     @property
     def update_cache(self):
-        self._cache_emoji = {r['name'] : r['emoji'] for r in db.emojis.find()}
-        self._cache_block = [r['userid'] for r in db.blocklist.find()]
+        self._cache_emoji = {r['name'] : r['emoji'] for r in self.db.emojis.find()}
+        self._cache_block = [r['userid'] for r in self.db.blocklist.find()]
         return "`Updated the cache`"
 
     @property
@@ -88,7 +82,7 @@ class MyBot(commands.Bot):
 async def get_prefix(client, message):
     if not message.guild:
         return commands.when_mentioned_or(*("",))(client, message)
-    prefixes = db.get_collection("prefixes")
+    prefixes = client.db.get_collection("prefixes")
     p = prefixes.find_one({"serverid": message.guild.id})
     if p:
         pf = p["prefix"]
@@ -99,6 +93,11 @@ async def get_prefix(client, message):
         
 # Creating the Bot using MyBot class
 client = MyBot(command_prefix = get_prefix, intents = discord.Intents.all())
+
+async def create_db_connection():
+    mclient = MongoClient(os.environ.get('mongodb'))
+    client.db = mclient.get_database("my_db")
+    print("Database connection successful!")
 
 
 @client.tree.command(name="ping", description="shows the bot latency.")
@@ -157,7 +156,9 @@ os.environ["JISHAKU_HIDE"]="True"
 
 
 async def main():
+    await create_db_connection()
     extensions = ['cogs.basic', 'cogs.error', 'cogs.games', 'cogs.moderation', 'cogs.tags', 'cogs.owner', 'cogs.pokemoncreed', 'cogs.pokename', 'jishaku']
+    #extensions = ['cogs.test']
     async with client:
         for extension in extensions:
             if extension not in client.disabledCogs:
