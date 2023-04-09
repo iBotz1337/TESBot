@@ -158,6 +158,7 @@ async def main():
     await create_db_connection()
     extensions = ['cogs.basic', 'cogs.error', 'cogs.games', 'cogs.moderation', 'cogs.tags', 'cogs.owner', 'cogs.pokemoncreed', 'cogs.pokename', 'jishaku']
     #extensions = ['cogs.test']
+    
     async with client:
         for extension in extensions:
             if extension not in client.disabledCogs:
