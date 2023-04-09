@@ -18,12 +18,11 @@ class MyBot(commands.Bot):
     tutors = [510664110669561856]
     inviteurl = ""
     boxrateconfig = {"base": 1, "unbase": 0.8, "other": 5}
-    raids_config = {'category_id': [1043874022552780880, 1065988552338452501], 
-                    '10_shards_raids_ch': 1071627979110760499,
-                    '2_shards_raids_ch': 1072353312164298833,
-                    '10_shards_raids': ['articuno', 'mew', 'mewtwo', 'celebi', 'deoxys', 'uxie', 'mesprit', 'azelf', 'cresselia', 'heatran', 'phione', 'manaphy', 'shaymin', 'virizion', 'genesect', 'keldeo', 'diancie', 'hoopa', 'tapu lele', 'lunala', 'nihilego', 'pheromosa', 'kartana', 'necrozma', 'poipole', 'naganadel', 'stakataka', 'blacephalon', 'xurkitree', 'melmetal', 'zarude', 'calyrex', 'enamorus', 'wo-chien', 'chien-pao', 'chi-yu', 'rapid strike style urshifu', 'gigantamax rapid strike style urshifu', 'single strike urshifu'],
-                    '2_shards_raids': ['alolan rattata', 'alolan raticate', 'alolan sandshrew', 'alolan vulpix', 'alolan ninetales', 'alolan diglett', 'alolan meowth', 'alolan persian', 'alolan geodude', 'galarian meowth', 'galarian ponyta', 'galarian slowpoke', 'galarian zigzagoon', 'galarian linoone', 'galarian darumaka', 'hisuian growlithe', 'hisuian voltorb', 'hisuian sneasel', 'hisuian lilligant', 'hisuian decidueye']
-                    }    
+    raids_config = {'category_id': [1043874022552780880, 1065988552338452501, 1093788792919437312], 
+                    '10_shards_raids_ch': 1071627979110760499, 
+                    '2_shards_raids_ch': 1072353312164298833, 
+                    '10_shards_raids': ['articuno', 'mew', 'mewtwo', 'celebi', 'deoxys', 'uxie', 'mesprit', 'azelf', 'cresselia', 'heatran', 'phione', 'manaphy', 'shaymin', 'virizion', 'genesect', 'keldeo', 'diancie', 'hoopa', 'tapu lele', 'lunala', 'nihilego', 'pheromosa', 'kartana', 'necrozma', 'poipole', 'naganadel', 'stakataka', 'xurkitree', 'melmetal', 'zarude', 'calyrex', 'enamorus', 'wo chien', 'chien pao', 'chi yu', 'rapid strike style urshifu', 'gigantamax rapid strike style urshifu', 'single strike urshifu', 'galarian zapdos', 'terrakion', 'cobalion', 'jirachi'], 
+                    '2_shards_raids': ['alolan rattata', 'alolan raticate', 'alolan sandshrew', 'alolan vulpix', 'alolan ninetales', 'alolan diglett', 'alolan meowth', 'alolan persian', 'alolan geodude', 'galarian meowth', 'galarian ponyta', 'galarian slowpoke', 'galarian zigzagoon', 'galarian linoone', 'galarian darumaka', 'hisuian growlithe', 'hisuian voltorb', 'hisuian sneasel', 'hisuian lilligant', 'hisuian decidueye']}    
     
     def __init__(self, command_prefix, intents):
         super().__init__(command_prefix=command_prefix, intents=intents)

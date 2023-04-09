@@ -569,11 +569,8 @@ class Basic(commands.Cog):
     @commands.command(hidden = True, aliases = [])
     async def meme(self, ctx, *, category= None):
         """Displays a random meme from reddit."""
-        if ctx.guild.id != 997006222853144627:
-            return
-
         try:
-            memeAPI = "https://meme-api.herokuapp.com/gimme"
+            memeAPI = "https://meme-api.com/gimme"
             if category:
                 category = category.replace(" ","")
                 memeAPI += "/" + category
@@ -586,8 +583,8 @@ class Basic(commands.Cog):
             embed.set_footer(text=footer_text)
             await ctx.send(embed = embed)
         except:
-            embed = discord.Embed(title = "#404 - Not Found")
-            embed.description = "I couldn't find a meme at the moment."
+            embed = discord.Embed(title = "API Error")
+            embed.description = "I couldn't find a meme at the moment. Please try again later."
             await ctx.send(embed = embed)
 
     @commands.command(aliases = ["gs"])
